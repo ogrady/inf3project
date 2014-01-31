@@ -74,7 +74,8 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 		IMapListener, IDragonListener {
 	private static final ExecutorService threadPool = Executors
 			.newCachedThreadPool();
-	public static final int serverVersion = 9;
+	public static final int serverVersionMajor = 1;
+	public static final int serverVersionMinor = 9;
 	public static final ServerState serverState = ServerState.EXPERIMENTAL;
 
 	private boolean running = false;
@@ -236,7 +237,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 				+ "|");
 		header.println("|----------------------------|");
 		header.println("| " + colInfo + "Serverversion: " + colRes
-				+ serverVersion);
+				+ getVersion());
 		header.println("| " + colInfo + "State: " + colRes + serverState);
 		header.println("| " + colInfo + "Address: " + colRes
 				+ socket.getInetAddress());
@@ -289,9 +290,9 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	}
 
 	/**
-	 * Called by a {@link TcpClient} when he is ready and done setting itself up.
-	 * The new presence of the {@link TcpClient}s {@link Player} will then be
-	 * broadcasted to all other {@link Player}s He will then start to receive
+	 * Called by a {@link TcpClient} when he is ready and done setting itself
+	 * up. The new presence of the {@link TcpClient}s {@link Player} will then
+	 * be broadcasted to all other {@link Player}s He will then start to receive
 	 * ticks from the server too.
 	 * 
 	 * @param _client
@@ -303,8 +304,8 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	}
 
 	/**
-	 * Called by a {@link TcpClient} when he wishes to be terminated. He will the
-	 * proceed to shut himself down but gives the server the opportunity to
+	 * Called by a {@link TcpClient} when he wishes to be terminated. He will
+	 * the proceed to shut himself down but gives the server the opportunity to
 	 * broadcast this event. Will also remove the player from the list of
 	 * listeners
 	 * 
@@ -422,7 +423,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	public ArrayList<String> tokenize() {
 		final ArrayList<String> tokens = new ArrayList<String>();
 		tokens.add(ServerConst.BEGIN + ServerConst.SERVER);
-		tokens.add(ServerConst.VERSION + serverVersion);
+		tokens.add(ServerConst.VERSION + getVersion());
 		tokens.add(ServerConst.END + ServerConst.SERVER);
 		return tokens;
 	}
@@ -472,5 +473,9 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 			e.printStackTrace();
 			System.exit(1);
 		}
+	}
+
+	public String getVersion() {
+		return String.format("%d.%d", serverVersionMajor, serverVersionMinor);
 	}
 }
