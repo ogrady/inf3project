@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="src" path="client"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2/commons-cli-1.2-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2/commons-cli-1.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2/commons-cli-1.2.jar"/>
