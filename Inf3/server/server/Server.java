@@ -67,15 +67,15 @@ import exception.MapException;
 
 /**
  * Server for the game
- * 
+ *
  * @author Daniel
  */
 public class Server implements ITokenizable, IListenable<IServerListener>,
-		IMapListener, IDragonListener {
+IMapListener, IDragonListener {
 	private static final ExecutorService threadPool = Executors
 			.newCachedThreadPool();
-	public static final int serverVersionMajor = 1;
-	public static final int serverVersionMinor = 9;
+	public static final int serverVersionMajor = 2;
+	public static final int serverVersionMinor = 0;
 	public static final ServerState serverState = ServerState.EXPERIMENTAL;
 
 	private boolean running = false;
@@ -121,7 +121,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Searches a {@link TcpClient} by the ID of its contained entity
-	 * 
+	 *
 	 * @param _id
 	 *            id of the {@link TcpClient} to search for
 	 * @return the {@link TcpClient} with the given id or null if no such player
@@ -155,7 +155,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param _port
 	 *            port on which the server should run on
 	 * @throws IOException
@@ -294,7 +294,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 * up. The new presence of the {@link TcpClient}s {@link Player} will then
 	 * be broadcasted to all other {@link Player}s He will then start to receive
 	 * ticks from the server too.
-	 * 
+	 *
 	 * @param _client
 	 *            ready {@link TcpClient}
 	 */
@@ -308,7 +308,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 * the proceed to shut himself down but gives the server the opportunity to
 	 * broadcast this event. Will also remove the player from the list of
 	 * listeners
-	 * 
+	 *
 	 * @param _client
 	 *            terminating {@link TcpClient}
 	 */
@@ -319,7 +319,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Adds a new client thread to the list of clients
-	 * 
+	 *
 	 * @param _client
 	 *            new client
 	 */
@@ -329,7 +329,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Removes a client from the server
-	 * 
+	 *
 	 * @param _client
 	 *            client to remove
 	 */
@@ -339,7 +339,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Processes a request from the console.
-	 * 
+	 *
 	 * @param _cmd
 	 *            request string from the console
 	 */
@@ -351,7 +351,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	/**
 	 * Processes a request sent by a client.
-	 * 
+	 *
 	 * @param _src
 	 *            the source {@link TcpClient} from which the request came
 	 * @param _req
@@ -378,7 +378,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 * Broadcasts a {@link ITokenizable} object to all players Broadcasting is
 	 * synchronized as many {@link TcpClient}s (which are one thread each) could
 	 * issue a broadcast which would lead to mingled messages
-	 * 
+	 *
 	 * @param _tok
 	 *            {@link ITokenizable} object
 	 */
@@ -396,7 +396,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	/**
 	 * Broadcasts a {@link ITokenizable} object to all players with a
 	 * surrounding tag
-	 * 
+	 *
 	 * @param _tok
 	 *            {@link ITokenizable} object
 	 * @param _type
@@ -457,9 +457,9 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 			map = Configuration.getInstance().getProperty(
 					Configuration.DEFAULT_MAP_PATH);
 			System.out
-					.println(String
-							.format("Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
-									Const.PATH_CONF));
+			.println(String
+					.format("Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
+							Const.PATH_CONF));
 		} else {
 			port = args[0];
 			map = args[1];
