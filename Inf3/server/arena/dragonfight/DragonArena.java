@@ -1,31 +1,56 @@
 package arena.dragonfight;
 
-import server.TcpClient;
 import server.Server;
+import server.TcpClient;
 import arena.Arena;
+import environment.entity.Player;
 import environment.wrapper.ServerDragon;
 
+// TODO: idle arenas can keep dragons busy forever without despawning them. find a mechanism around that
 public class DragonArena extends Arena<DragonOpponent> {
-	private static final int[][] matrix = {{},{}};
-	private ServerDragon dragon;
-	
-	public DragonArena(Server _server, TcpClient _cl1, TcpClient _cl2, ServerDragon _dr, int _rounds) {
+	private static final int[][] matrix = {
+			// r f
+			{ 0, 5 }, // r
+			{ 1, 2 }, // f
+	};
+	private final ServerDragon dragon;
+
+	public DragonArena(final Server _server, final TcpClient _cl1,
+			final TcpClient _cl2, final ServerDragon _dr, final int _rounds) {
 		super(_server, _cl1, _cl2, _rounds);
 		dragon = _dr;
-		dragon.setBusy(true);
+		if (dragon != null) {
+			dragon.setBusy(true);
+		}
 	}
-	
+
 	@Override
-	protected DragonOpponent wrap(TcpClient _cl) {
+	public void destruct() {
+		super.destruct();
+		if (dragon != null) {
+			dragon.setBusy(false);
+		}
+	}
+
+	@Override
+	protected DragonOpponent wrap(final TcpClient _cl) {
 		return new DragonOpponent(_cl);
 	}
 
 	@Override
 	protected boolean prerequisites() {
-		// all three entities have to be at the same position and the dragon must not be busy
-		return !dragon.getWrappedObject().isBusy() &&
-				player1.getClient().getPlayer().getWrappedObject().getPosition().equals(player2.getClient().getPlayer().getWrappedObject().getPosition()) &&
-				player1.getClient().getPlayer().getWrappedObject().getPosition().equals(dragon.getWrappedObject().getPosition());
+		// all three entities have to be at the same position the players must
+		// not be busy and the dragon can not be null. A null-dragon can occur,
+		// when no un-busy dragon was found on the cell, the first player
+		// challenged the second player on.
+		final Player p1 = player1.getClient().getPlayer().getWrappedObject();
+		final Player p2 = player2.getClient().getPlayer().getWrappedObject();
+		return !p1.isBusy()
+				&& !p2.isBusy()
+				&& dragon != null
+				&& p1.getPosition().equals(p2.getPosition())
+				&& p1.getPosition().equals(
+						dragon.getWrappedObject().getPosition());
 	}
 
 	@Override

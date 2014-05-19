@@ -3,8 +3,8 @@ package arena;
 import java.util.ArrayList;
 
 import listener.IPlayerListener;
-import server.TcpClient;
 import server.Server;
+import server.TcpClient;
 import tokenizer.ITokenizable;
 import util.Configuration;
 import util.Const;
@@ -28,9 +28,9 @@ import environment.wrapper.ServerPlayer;
  * the network from updating the point count every round. The {@link Arena} runs
  * in an own thread and will terminate after enough rounds are played. Both
  * players will be busy for the duration of the game.
- * 
+ *
  * @author Daniel
- * 
+ *
  * @param <T>
  *            {@link Opponent}s that can compete in this {@link Arena}
  */
@@ -56,7 +56,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 * accepted or denied the challenge yet. As soon as both players accepted,
 	 * the minigame will start and the {@link Arena} will be put into the
 	 * running state.<br>
-	 * 
+	 *
 	 * @return true, if both players accepted the challenge and the arena is
 	 *         active and we haven't reached the max. round-number yet
 	 */
@@ -66,7 +66,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 
 	/**
 	 * Constructor creates an {@link Arena} that plays up to "_rounds" rounds
-	 * 
+	 *
 	 * @param _owner
 	 *            player that created the {@link Arena} by challenging another
 	 *            player
@@ -110,7 +110,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 * entering player is the challenged player (player2). Entering the
 	 * {@link Arena} will immediately start the minigame by calling
 	 * {@link #run()} with a wrapping thread.
-	 * 
+	 *
 	 * @param _cl
 	 * @return true, if entering succeeded, false if not (player was not
 	 *         invited)
@@ -186,7 +186,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 *   delay:NR
 	 *   begin:players
 	 *     {@link Opponent#tokenize()}
-	 *     {@link Opponent#tokenize()}     
+	 *     {@link Opponent#tokenize()}
 	 *   end:players
 	 * end:result
 	 * </pre>
@@ -231,7 +231,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 * matrix.<br>
 	 * The keys for the lookup are the ordinal numbers of the decision of the
 	 * two players in the enum. So the order of those is sensitive!
-	 * 
+	 *
 	 * @param _p1Dec
 	 *            player1s wrapper from which the decision is taken
 	 * @param _p2Dec
@@ -250,7 +250,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 * it. For example in a {@link DragonArena} the {@link TcpClient}s will be
 	 * wrapped into {@link DragonOpponent}s. Their type is specified by the
 	 * generic T.
-	 * 
+	 *
 	 * @param _cl
 	 *            {@link TcpClient} that should be wrapped
 	 * @return wrapped version of the {@link TcpClient}
@@ -260,7 +260,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	/**
 	 * Checks whether the prerequisites for starting the game are met. Otherwise
 	 * the game will be canceled.
-	 * 
+	 *
 	 * @return true, if all prerequisites are met
 	 */
 	abstract protected boolean prerequisites();
