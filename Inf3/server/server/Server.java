@@ -7,8 +7,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import listener.IDragonListener;
 import listener.IListenable;
@@ -71,9 +69,7 @@ import exception.MapException;
  * @author Daniel
  */
 public class Server implements ITokenizable, IListenable<IServerListener>,
-IMapListener, IDragonListener {
-	private static final ExecutorService threadPool = Executors
-			.newCachedThreadPool();
+		IMapListener, IDragonListener {
 	public static final int serverVersionMajor = 2;
 	public static final int serverVersionMinor = 0;
 	public static final ServerState serverState = ServerState.EXPERIMENTAL;
@@ -89,13 +85,6 @@ IMapListener, IDragonListener {
 	private final CopyOnWriteArrayList<TcpClient> clients = new CopyOnWriteArrayList<TcpClient>();
 	private final TopLevelCommand<Server> serverCommands = new TopLevelCommand<Server>();
 	private final TopLevelCommand<TcpClient> clientCommands = new TopLevelCommand<TcpClient>();
-
-	/**
-	 * @return the threadpool of the server for reusable tasks
-	 */
-	public ExecutorService getThreadpool() {
-		return threadPool;
-	}
 
 	/**
 	 * @return {@link Logger} that is currently in use
@@ -247,14 +236,16 @@ IMapListener, IDragonListener {
 		header.println("| " + colInfo + "DB: " + colRes + Const.DB_NAME);
 		header.println("|----------------------------|");
 		header.println("Listening for clients...");
-		threadPool.execute(ticker);
-		threadPool.execute(consoleInput);
+		new Thread(ticker, "ticker").start();
+		new Thread(consoleInput, "console input").start();
 		running = true;
 		Socket sock;
 		while (running) {
 			try {
 				sock = socket.accept();
-				threadPool.execute(new TcpClient(this, sock));
+				final TcpClient cl = new TcpClient(this, sock);
+				new Thread(cl, "client "
+						+ cl.getPlayer().getWrappedObject().getId()).start();
 				/*
 				client.beginMessage();
 				client.sendTokenizable(this);
@@ -457,9 +448,9 @@ IMapListener, IDragonListener {
 			map = Configuration.getInstance().getProperty(
 					Configuration.DEFAULT_MAP_PATH);
 			System.out
-			.println(String
-					.format("Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
-							Const.PATH_CONF));
+					.println(String
+							.format("Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
+									Const.PATH_CONF));
 		} else {
 			port = args[0];
 			map = args[1];

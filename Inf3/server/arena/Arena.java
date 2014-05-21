@@ -118,7 +118,10 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	public boolean enter(final TcpClient _cl) {
 		boolean entered = false;
 		if (_cl.equals(player2.getClient())) {
-			server.getThreadpool().execute(this);
+			new Thread(this, String.format("arena (%d vs %d)", player1
+					.getClient().getPlayer().getWrappedObject().getId(),
+					player2.getClient().getPlayer().getWrappedObject().getId()))
+					.start();
 			entered = true;
 		}
 		return entered;

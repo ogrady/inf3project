@@ -25,7 +25,7 @@ import environment.wrapper.ServerPlayer;
  * reading-connection breaks down, the {@link TcpClient} will be closed and
  * removed from the {@link Server} by performing a cleanup (deleting the
  * corresponding {@link ServerPlayer} etc.).
- * 
+ *
  * @author Daniel
  */
 public class TcpClient implements Runnable {
@@ -41,7 +41,7 @@ public class TcpClient implements Runnable {
 	/**
 	 * Check, whether the {@link TcpClient} was already closed. No further
 	 * message should be sent to a closed {@link TcpClient}
-	 * 
+	 *
 	 * @return whether the {@link TcpClient} is closed or not
 	 */
 	public boolean isClosed() {
@@ -51,7 +51,7 @@ public class TcpClient implements Runnable {
 	/**
 	 * Checks whether the {@link TcpClient} is still waiting for the end of a
 	 * message
-	 * 
+	 *
 	 * @return true, if the mes-id <> -1
 	 */
 	public boolean pendingMessage() {
@@ -74,7 +74,7 @@ public class TcpClient implements Runnable {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param _server
 	 *            {@link Server} this client belongs to
 	 * @param _socket
@@ -142,7 +142,7 @@ public class TcpClient implements Runnable {
 	 * Convenience method to UNKNOWN for the last request. Sends the request
 	 * back to the client and marks it as "unknown" to signalize malformed
 	 * requests
-	 * 
+	 *
 	 * @param _req
 	 *            original request
 	 */
@@ -163,21 +163,26 @@ public class TcpClient implements Runnable {
 
 	/**
 	 * Send a line of text directly to the Client (unbuffered)
-	 * 
+	 *
 	 * @param _mes
 	 *            message to send
 	 */
 	public synchronized void send(final String _mes) {
+		// new Thread(new Runnable() {
+		// @Override
+		// public void run() {
 		if (!closed) {
 			output.write(_mes + "\r\n");
 			output.flush();
 		}
+		// }
+		// }).run();
 	}
 
 	/**
 	 * Sends an {@link ITokenizable} by sending its tokenized version line by
 	 * line
-	 * 
+	 *
 	 * @param _tok
 	 *            {@link ITokenizable} to send
 	 */
@@ -211,7 +216,7 @@ public class TcpClient implements Runnable {
 
 	/**
 	 * Directly sends a {@link ITokenizable} with enclosing begin and end
-	 * 
+	 *
 	 * @param _tok
 	 *            {@link ITokenizable} to send
 	 */
