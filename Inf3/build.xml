@@ -1,0 +1,57 @@
+<!--  Ant script to compile project and generate jar
+      Works for linux already; needs refining to respect backslashes in windows paths
+      -> TODO: use pathconvert
+
+      Should compile, pack jar and start game by calling "ant run" once
+-->
+<project>
+   <!-- Set definitions, afterwards use variables only -->
+   <property name="lib.dir" value="lib" />
+   <property name="build.dir" value="build" />
+   <property name="classes.dir" value="classes" />
+   <property name="src.dir" value="./" />
+   <property name="jar.dir" value="jar" />
+   <property name="jar.name" value="server.jar" />
+
+   <!-- Explicitly list all referenced external jars here -->
+   <path id="classpath">
+      <pathelement location="lib/commons-cli-1.2/commons-cli-1.2.jar" />
+      <pathelement location="lib/jansi-1.11.jar" />
+   	  <pathelement location="lib/db4o-8.0.249.16098-all-java5.jar" />
+   </path>
+
+   <!-- Detect changes to later compile only if we have to -->
+   <uptodate property="nochanges" targetfile="${build.dir}/${jar.dir}/${jar.name}">
+      <srcfiles dir="${src.dir}" includes="**/*.java" />
+   </uptodate>
+
+   <target name="clean">
+     <delete dir="${build.dir}" />
+   </target>
+
+   <target name="compile" unless="nochanges">
+      <mkdir dir="${build.dir}/${classes.dir}" />
+      <javac srcdir="${src.dir}" destdir="${build.dir}/${classes.dir}" classpathref="classpath" includeantruntime="false">
+      	<exclude name="**/client/*.java"/>
+   	  </javac>
+   </target>
+
+   <target name="jar" depends="compile">
+      <mkdir dir="${build.dir}/${jar.dir}" />
+      <manifestclasspath property="jar.classpath" jarfile="${build.dir}/${jar.dir}/${jar.name}">
+         <classpath refid="classpath" />
+      </manifestclasspath>
+      <jar destfile="${build.dir}/${jar.dir}/${jar.name}" basedir="${build.dir}/${classes.dir}">
+         <manifest>
+            <attribute name="Main-Class" value="server.Server" />
+            <attribute name="Class-Path" value="${jar.classpath}" />
+         </manifest>
+      </jar>
+   </target>
+
+   <target name="run" depends="jar">
+      <java jar="${build.dir}/${jar.dir}/${jar.name}" fork="true">
+         <sysproperty key="java.library.path" path="${lib.dir}/${native-libs}"/>
+      </java>
+   </target>
+</project>
