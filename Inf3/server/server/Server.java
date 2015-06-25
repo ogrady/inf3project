@@ -152,12 +152,12 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 */
 	public Server(final String _port, final File _mapFile) throws IOException {
 		try {
-			port = Integer.parseInt(_port);
-			socket = new ServerSocket(port);
-			map = new ServerMap(_mapFile, this);
 			logger.accept(MessageType.GENERIC, MessageType.INFO,
 					MessageType.ERROR, MessageType.NOTIFICATION,
 					MessageType.OUTPUT, MessageType.DEBUG);
+			port = Integer.parseInt(_port);
+			socket = new ServerSocket(port);
+			map = new ServerMap(_mapFile, this);
 			map.getListeners().add(this);
 			getListeners().add(map);
 			serverCommands.addSubcommand(new HelpCommand());
