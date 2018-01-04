@@ -6,6 +6,7 @@ import util.Message;
 import util.ServerConst;
 
 import command.ClientCommand;
+import command.Command;
 
 public class AskSayCommand extends ClientCommand {
 
@@ -19,6 +20,6 @@ public class AskSayCommand extends ClientCommand {
 		_src.send(ServerConst.ANS+ServerConst.ANS_YES);
 		_src.endMessage();
 		server.broadcast(new Message(_src.getPlayer().getWrappedObject().getId(), _src.getPlayer().getWrappedObject().getDescription(), _cmd));
-		return 1;
+		return Command.PROCESSED;
 	}
 }

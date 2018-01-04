@@ -10,7 +10,7 @@ import server.Server;
 import util.Const;
 import util.ServerConst;
 import command.ClientCommand;
-
+import command.Command;
 import environment.entity.Player;
 
 public class GetRankingCommand extends ClientCommand {
@@ -29,12 +29,7 @@ public class GetRankingCommand extends ClientCommand {
 		Map<String, List<Player>> ranking = new HashMap<>();
 		ranking.put(Const.PAR_RANKING, players);
 		_src.send(server.json(ranking).get());
-				
-		/*for(int i=0; i<players.size(); i++) {
-			
-			_src.flushTokenizable(new ServerMessage(String.format("%d. %s (%d)", i+1, players.get(i).getDescription(), players.get(i).getPoints())));
-		}*/
 		_mes.append("sent ranking to " + _src);
-		return 1;
+		return Command.PROCESSED;
 	}
 }

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import command.ClientCommand;
+import command.Command;
 
 public class GetOnlineCountCommand extends ClientCommand {
 
@@ -20,14 +21,7 @@ public class GetOnlineCountCommand extends ClientCommand {
 		Map<String,Integer> mes = new HashMap<>();
 		mes.put(ServerConst.ANS_COUNT, server.getClients().size());
 		_src.send(server.json(mes).get());
-		/*
-		_src.beginMessage();
-		_src.send(ServerConst.BEGIN+ServerConst.ANS_COUNT);
-		_src.send(""+server.getClients().size());
-		_src.send(ServerConst.END+ServerConst.ANS_COUNT);
-		_src.endMessage();
-		*/
 		_mes.append("sent number of online users to "+_src);
-		return 1;
+		return Command.PROCESSED;
 	}
 }

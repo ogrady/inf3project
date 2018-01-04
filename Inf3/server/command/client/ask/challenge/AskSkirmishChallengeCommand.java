@@ -44,35 +44,4 @@ public class AskSkirmishChallengeCommand extends ClientCommand {
 		};
 		return factory.construct(server, _cmd, _src, _mes);
 	}
-
-	/*@Override
-		protected int routine(Client _src, String _cmd, StringBuilder _mes) {
-			int result = 0;
-			try {
-				int id = Integer.parseInt(_cmd);
-				Client opponent = server.getClientById(id);
-				if(	opponent == null ||
-					opponent.getPlayer().getWrappedObject().isBusy() ||
-					!opponent.getPlayer().getWrappedObject().getPosition().equals(_src.getPlayer().getWrappedObject().getPosition())) {
-					_src.sendNo();
-				} else {
-					Arena<?> arena = opponent.getPlayer().getArena();
-					// opponent already has an arena and is waiting for us -> just enter the already existing arena
-					if(arena != null && arena instanceof SkirmishArena && arena.getChallenged().getClient().equals(_src)) {
-						_src.getPlayer().setArena(arena);
-						arena.enter(_src);
-					// create a new arena and invite the opponent to it
-					} else {
-						_src.getPlayer().setArena(new SkirmishArena(_src, opponent, Configuration.getInstance().getInteger(Configuration.SKIRMISH_ROUNDS)));
-					}
-					_src.sendOk();
-				}
-				result = 1;
-			} catch(NumberFormatException nfe) {
-				result = -1;
-				_mes.append(String.format("Failed to parse id for a challenger from '%s'", _cmd));
-			}
-			return result;
-		}*/
-
 }

@@ -6,7 +6,7 @@ import util.ServerConst;
 import util.Vector2D;
 
 import command.ClientCommand;
-
+import command.Command;
 import environment.MapCell;
 import environment.Property;
 
@@ -22,7 +22,7 @@ public class AskMoveCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		int result = 0;
+		int result = Command.NOT_RESPONSIBLE;
 		Vector2D pos = _src.getPlayer().getWrappedObject().getPosition();
 		int x = pos.x;
 		int y = pos.y;
@@ -39,9 +39,9 @@ public class AskMoveCommand extends ClientCommand {
 			x++;
 		}
 		else {
-			result = -1;
+			result = Command.EXCEPTION;
 		}
-		if(result != -1) {
+		if(result != Command.EXCEPTION) {
 			MapCell cell = server.getMap().getWrappedObject().getCellAt(x, y);
 			String answer = ServerConst.ANS_NO;
 			if(!_src.getPlayer().getWrappedObject().isBusy() && cell != null && cell.hasProperty(Property.WALKABLE)) {
@@ -55,7 +55,7 @@ public class AskMoveCommand extends ClientCommand {
 			if(answer.equals(ServerConst.ANS_YES)) {
 				server.broadcast(_src.getPlayer().getWrappedObject(), ServerConst.UPD);
 			}
-			result = 1;
+			result = Command.PROCESSED;
 		}
 		return result;
 	}

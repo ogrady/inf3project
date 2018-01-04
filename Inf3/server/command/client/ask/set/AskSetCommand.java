@@ -5,6 +5,7 @@ import server.Server;
 import util.ServerConst;
 
 import command.ClientCommand;
+import command.Command;
 
 public class AskSetCommand extends ClientCommand {
 
@@ -18,7 +19,7 @@ public class AskSetCommand extends ClientCommand {
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
 		int success = executeSubcommands(_src, _cmd, _mes);
-		if(success == 1) {
+		if(success == Command.PROCESSED) {
 			_src.sendOk();
 		} else {
 			_src.sendNo();

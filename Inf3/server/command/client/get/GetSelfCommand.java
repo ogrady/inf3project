@@ -4,8 +4,10 @@ import server.TcpClient;
 import server.Server;
 import util.ServerConst;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Optional;
+
 import command.ClientCommand;
+import command.Command;
 
 public class GetSelfCommand extends ClientCommand {
 
@@ -15,14 +17,12 @@ public class GetSelfCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		try {
-			_src.send(server.getObjectMapper().writeValueAsString(_src.getPlayer()));
-			return 1;
-		} catch (JsonProcessingException e) {
-			return -1;
+		Optional<String> json = server.json(_src.getPlayer().getWrappedObject());
+		if(json.isPresent()) {
+			_src.send(json.get());
+			return Command.PROCESSED;
+		} else {
+			return Command.EXCEPTION;
 		}
-		/*_src.flushTokenizable(_src.getPlayer());
-		_mes.append("sent own entity to "+_src);
-		return 1;*/
 	}
 }

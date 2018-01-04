@@ -64,7 +64,6 @@ import environment.ServerClock;
 import environment.entity.Dragon;
 import environment.entity.Player;
 import environment.wrapper.ServerDragon;
-import environment.wrapper.ServerEntity;
 import environment.wrapper.ServerMap;
 import exception.MapException;
 
@@ -268,10 +267,6 @@ public class Server implements IListenable<IServerListener>,
 				final TcpClient cl = new TcpClient(this, sock);
 				new Thread(cl, "client "
 						+ cl.getPlayer().getWrappedObject().getId()).start();
-				/*
-				client.beginMessage();
-				client.sendTokenizable(this);
-				client.endMessage();*/
 			} catch (final IOException ioe) {
 				logger.println("Couldn't open streams. Disconnecting client.",
 						MessageType.ERROR);

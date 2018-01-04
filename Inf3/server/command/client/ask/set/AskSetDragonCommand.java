@@ -5,7 +5,7 @@ import server.Server;
 import util.ServerConst;
 
 import command.ClientCommand;
-
+import command.Command;
 import environment.entity.DragonDecision;
 
 /**
@@ -20,11 +20,11 @@ public class AskSetDragonCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		int success = 1;
+		int success = Command.PROCESSED;
 		try {
 			_src.getPlayer().getWrappedObject().setDragonDecision(DragonDecision.valueOf(_cmd.toUpperCase()));
 		} catch(IllegalArgumentException iae) {
-			success = -1;
+			success = Command.EXCEPTION;
 		}
 		return success;
 	}

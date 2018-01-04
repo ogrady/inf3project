@@ -35,7 +35,6 @@ abstract public class ServerEntity<E extends Entity> extends ServerWrapper<E> im
 		if(!destructed && former != _busy) {
 			server.broadcast(this.getWrappedObject(), ServerConst.UPD);
 		}
-		
 	}
 	
 	public void destruct() {

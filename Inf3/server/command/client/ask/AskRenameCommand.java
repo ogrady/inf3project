@@ -8,6 +8,7 @@ import server.Server;
 import util.ServerConst;
 
 import command.ClientCommand;
+import command.Command;
 
 /**
  * Tries to rename the executing player.<br>
@@ -36,7 +37,7 @@ public class AskRenameCommand extends ClientCommand {
 			_src.sendNo();
 			_mes.append(String.format("Could not rename %s to %s because of name restrictions", oldName, _cmd));
 		}
-		return 1;
+		return Command.PROCESSED;
 	}
 
 }

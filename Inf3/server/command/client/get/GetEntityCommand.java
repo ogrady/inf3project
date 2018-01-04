@@ -7,6 +7,7 @@ import util.ServerConst;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import command.ClientCommand;
+import command.Command;
 import environment.entity.Dragon;
 import environment.entity.Entity;
 import environment.entity.Player;
@@ -21,7 +22,7 @@ public class GetEntityCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		int result = 1;
+		int result = Command.PROCESSED;;
 		_src.beginMessage();
 		try {
 			int id = Integer.parseInt(_cmd);
@@ -42,7 +43,7 @@ public class GetEntityCommand extends ClientCommand {
 			}
 		} catch(NumberFormatException | JsonProcessingException nfe) {
 			_src.send(ServerConst.ANS+ServerConst.ANS_INVALID);
-			result = -1;
+			result = Command.EXCEPTION;
 		} finally {
 			_src.endMessage();
 		}
