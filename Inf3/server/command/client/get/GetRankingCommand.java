@@ -1,14 +1,14 @@
 package command.client.get;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import server.TcpClient;
 import server.Server;
+import util.Const;
 import util.ServerConst;
-import util.ServerMessage;
-
 import command.ClientCommand;
 
 import environment.entity.Player;
@@ -21,20 +21,20 @@ public class GetRankingCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		ArrayList<Player> players = new ArrayList<Player>(server.getClients().size());
-		for(TcpClient cl : server.getClients()) {
-			players.add(cl.getPlayer().getWrappedObject());
-		}
-		Collections.sort(players, new Comparator<Player>() {
-			@Override
-			public int compare(Player p1, Player p2) {
-				return p2.getPoints() - p1.getPoints();
-			}
-		});
-		for(int i=0; i<players.size(); i++) {
+		List<Player> players = server.getClients().stream()
+				.map(c -> c.getPlayer().getWrappedObject())
+				.sorted((Player p1, Player p2) -> p2.getPoints() - p1.getPoints())
+				.collect(Collectors.toList());
+				
+		Map<String, List<Player>> ranking = new HashMap<>();
+		ranking.put(Const.PAR_RANKING, players);
+		_src.send(server.json(ranking).get());
+				
+		/*for(int i=0; i<players.size(); i++) {
+			
 			_src.flushTokenizable(new ServerMessage(String.format("%d. %s (%d)", i+1, players.get(i).getDescription(), players.get(i).getPoints())));
-		}
-		_mes.append("sent ranking to "+_src);
+		}*/
+		_mes.append("sent ranking to " + _src);
 		return 1;
 	}
 }

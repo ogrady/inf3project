@@ -3,7 +3,6 @@ package util;
 import java.util.ArrayList;
 import java.util.List;
 
-import arena.ArenaFactory;
 import tokenizer.ITokenizable;
 /**
  * Challenges are generated to challenge a player to a certain minigame (implicated by {@link #accepted} == false) or to accept the challenge of another player ({@link #accepted} == true).<br>

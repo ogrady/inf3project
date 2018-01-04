@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import output.Logger;
 import output.Logger.MessageType;
@@ -124,18 +126,28 @@ public class TcpClient implements Runnable {
 	 * Convenience method to send OK for the last request
 	 */
 	public synchronized void sendOk() {
+		Map<String,String> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, ServerConst.ANS_YES);
+		send(server.json(mes).get());
+		/*
 		beginMessage();
 		send(ServerConst.ANS + ServerConst.ANS_YES);
 		endMessage();
+		*/
 	}
 
 	/**
 	 * Convenience method to send NO for the last request
 	 */
 	public synchronized void sendNo() {
+		Map<String,String> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, ServerConst.ANS_NO);
+		send(server.json(mes).get());
+		/*
 		beginMessage();
 		send(ServerConst.ANS + ServerConst.ANS_NO);
 		endMessage();
+		*/
 	}
 
 	/**
@@ -147,18 +159,28 @@ public class TcpClient implements Runnable {
 	 *            original request
 	 */
 	public synchronized void sendUnknown(final String _req) {
+		Map<String,String> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, ServerConst.ANS_UNKNOWN);
+		send(server.json(mes).get());
+		/*
 		beginMessage();
 		send(ServerConst.ANS + ServerConst.ANS_UNKNOWN + _req);
 		endMessage();
+		*/
 	}
 
 	/**
 	 * Convenience method to send INVALID for the last request
 	 */
 	public synchronized void sendInvalid() {
+		Map<String,String> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, ServerConst.ANS_INVALID);
+		send(server.json(mes).get());
+		/*
 		beginMessage();
 		send(ServerConst.ANS + ServerConst.ANS_INVALID);
 		endMessage();
+		*/
 	}
 
 	/**
@@ -168,15 +190,10 @@ public class TcpClient implements Runnable {
 	 *            message to send
 	 */
 	public synchronized void send(final String _mes) {
-		// new Thread(new Runnable() {
-		// @Override
-		// public void run() {
 		if (!closed) {
 			output.write(_mes + "\r\n");
 			output.flush();
 		}
-		// }
-		// }).run();
 	}
 
 	/**

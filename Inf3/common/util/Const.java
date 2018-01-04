@@ -13,11 +13,25 @@ public class Const {
 			PAR_XPOS = "x:",
 			PAR_YPOS = "y:",
 			PAR_ENTITY = "entity",
+			PAR_ONLINE = "online",
+			PAR_TIME = "time",
+			PAR_YOURID = "yourid",
+			PAR_ANS = "ans:",
+			PAR_OK = "ok",
+			PAR_NO = "no",
+			PAR_UNKNOWN = "unknown",
+			PAR_INVALID = "invalid",
+			PAR_RANKING = "ranking",
+			// server
+			PAR_SERVER = "server",
+			PAR_VERSION = "ver:",
 			// player
 			PAR_PLAYER = "player",
+			PAR_PLAYERS = "players",
 			PAR_POINTS = "points:",
 			// dragon
 			PAR_DRAGON = "dragon",
+			PAR_DRAGONS = "dragons",
 			// map
 			PAR_MAP = "map",
 			PAR_WIDTH = "width:",
@@ -30,7 +44,7 @@ public class Const {
 			PAR_PROPS = "props",
 			// message
 			PAR_MESSAGE = "mes",
-			PAR_MES_ID = "srcid:",
+			PAR_SRC_ID = "srcid:",
 			PAR_SENDER = "src:",
 			PAR_TEXT = "txt:",
 			// arena

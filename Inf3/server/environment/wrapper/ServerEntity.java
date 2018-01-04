@@ -33,7 +33,7 @@ abstract public class ServerEntity<E extends Entity> extends ServerWrapper<E> im
 		boolean former = wrapped.isBusy();
 		wrapped.setBusy(_busy);
 		if(!destructed && former != _busy) {
-			server.broadcast(this, ServerConst.UPD);
+			server.broadcast(this.getWrappedObject(), ServerConst.UPD);
 		}
 		
 	}

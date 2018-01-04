@@ -25,6 +25,11 @@ import util.ServerConst;
  * @author Daniel
  */
 abstract public class Command<S> {
+	public static final int 
+	NOT_RESPONSIBLE = 0,
+	PROCESSED = 1,
+	EXCEPTION = -1;
+	
 	protected HashMap<String, Command<S>> subcommands;
 	protected String sensitive;
 	

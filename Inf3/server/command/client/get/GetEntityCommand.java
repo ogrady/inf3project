@@ -4,6 +4,8 @@ import server.TcpClient;
 import server.Server;
 import tokenizer.ITokenizable;
 import util.ServerConst;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import command.ClientCommand;
 import environment.entity.Dragon;
 import environment.entity.Entity;
@@ -31,13 +33,14 @@ public class GetEntityCommand extends ClientCommand {
 				} else {
 					tok = new ServerDragon((Dragon)ent, server, false);
 				}
-				_src.sendTokenizable(tok);
+				//_src.sendTokenizable(tok);
+				_src.send(server.getObjectMapper().writeValueAsString(tok));
 				_mes.append("sent entity "+id+" to "+_src);
 			}
 			else {
 				_src.send(ServerConst.ANS+ServerConst.ANS_INVALID);
 			}
-		} catch(NumberFormatException nfe) {
+		} catch(NumberFormatException | JsonProcessingException nfe) {
 			_src.send(ServerConst.ANS+ServerConst.ANS_INVALID);
 			result = -1;
 		} finally {

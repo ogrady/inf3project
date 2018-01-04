@@ -8,7 +8,7 @@ import org.fusesource.jansi.AnsiConsole;
 import util.Bitmask;
 
 /**
- * Logger that acts like a outputstream.
+ * Logger that acts like an outputstream.
  * But it displays different information with different color
  * and can be modified in other ways.
  * It holds a {@link Bitmask} to distinguish between message that should or should not be displayed.

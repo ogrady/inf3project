@@ -1,5 +1,7 @@
 package environment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import util.Configuration;
 import util.SyncedMap;
 
@@ -11,8 +13,11 @@ import util.SyncedMap;
 final public class Player extends Entity {
 	// db here
 	public static SyncedMap<Player> instances = new SyncedMap<Player>();
+	@JsonIgnore
 	protected StaghuntDecision staghuntDecision;
+	@JsonIgnore
 	protected DragonDecision dragonDecision;
+	@JsonIgnore
 	protected SkirmishDecision skirmishDecision;	
 	protected int points;
 	

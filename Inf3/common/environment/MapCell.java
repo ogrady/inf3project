@@ -2,6 +2,8 @@ package environment;
 
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import util.Bitmask;
 import environment.entity.Entity;
 /**
@@ -9,12 +11,17 @@ import environment.entity.Entity;
  * @author Daniel
  */
 public class MapCell {
+	@JsonIgnore
 	protected Vector<Entity> entities;
 	protected Vector<Property> properties;
+	@JsonIgnore
 	protected Bitmask propertyMap;
-	protected int x,y;
+	@JsonIgnore
 	protected long tickAccu;
+	@JsonIgnore
 	protected Map map;
+	protected int x;
+	protected int y;	
 	
 	public int getX() {
 		return this.x;
@@ -24,14 +31,54 @@ public class MapCell {
 		return this.y;
 	}
 	
+	@JsonIgnore
+	public void setMap(Map m) {
+		this.map = m;
+	}
+	
+	/**
+	 * List {@link Entity}s
+	 * @return a list of {@link Entity}s
+	 */
+	@JsonIgnore
+	public Vector<Entity> getEntities() {
+		return this.entities;
+	}
+	
+	/**
+	 * The list of properties this {@link MapCell} holds
+	 * @return
+	 */
+	public Vector<Property> getProperties() {
+		return properties;
+	}
+	
+	/**
+	 * Collects the direct neighbours of the cell
+	 * @return array of {@link MapCell}s that are directly adjacent to the current cell (4 elements in total, vertically and horizontally) That is:<br>
+	 * 0: left<br>
+	 * 1: top<br>
+	 * 2: right<br>
+	 * 3: down<br>
+	 * Be aware that if a cell does not have a neighbour to any side the value at this position is NULL! For example: 
+	 * if a cell does not have a top neighbour, getNeighbours()[1] will be NULL. So additional checking is needed.
+	 */
+	@JsonIgnore
+	public MapCell[] getNeighbours() {
+		MapCell[] n = new MapCell[4];
+		if(map != null) {
+			n[0] = map.getCellAt(this.x - 1, this.y);
+			n[1] = map.getCellAt(this.x, this.y - 1);
+			n[2] = map.getCellAt(this.x + 1, this.y);
+			n[3] = map.getCellAt(this.x, this.y + 1);
+		}
+		return n;
+	}
+	
 	protected MapCell() {
 		this.entities = new Vector<Entity>();
 		this.properties = new Vector<Property>();
 		this.propertyMap = new Bitmask();
-	}
-	
-	public void setMap(Map m) {
-		this.map = m;
 	}
 
 	/**
@@ -44,27 +91,6 @@ public class MapCell {
 		this.map = map;
 		this.x = x;
 		this.y = y;
-	}
-
-	/**
-	 * Collects the direct neighbours of the cell
-	 * @return array of {@link MapCell}s that are directly adjacent to the current cell (4 elements in total, vertically and horizontally) That is:<br>
-	 * 0: left<br>
-	 * 1: top<br>
-	 * 2: right<br>
-	 * 3: down<br>
-	 * Be aware that if a cell does not have a neighbour to any side the value at this position is NULL! For example: 
-	 * if a cell does not have a top neighbour, getNeighbours()[1] will be NULL. So additional checking is needed.
-	 */
-	public MapCell[] getNeighbours() {
-		MapCell[] n = new MapCell[4];
-		if(map != null) {
-			n[0] = map.getCellAt(this.x - 1, this.y);
-			n[1] = map.getCellAt(this.x, this.y - 1);
-			n[2] = map.getCellAt(this.x + 1, this.y);
-			n[3] = map.getCellAt(this.x, this.y + 1);
-		}
-		return n;
 	}
 	
 	/**
@@ -81,14 +107,6 @@ public class MapCell {
 	 */
 	public void removeEntity(Entity e) {
 		this.entities.remove(e);
-	}
-	
-	/**
-	 * List {@link Entity}s
-	 * @return a list of {@link Entity}s
-	 */
-	public Vector<Entity> getEntities() {
-		return this.entities;
 	}
 	
 	/**
@@ -142,39 +160,12 @@ public class MapCell {
 	}
 	
 	/**
-	 * The list of properties this {@link MapCell} holds
-	 * @return
-	 */
-	public Vector<Property> getProperties() {
-		return properties;
-	}
-	
-	/**
 	 * Two {@link MapCell}s are the same if they have the same coordinate in a {@link Map}
 	 * @param other other {@link MapCell}
 	 * @return true, if the cells share the same coords
 	 */
 	public boolean equals(MapCell other) {
 		return this.x == other.x && this.y == other.y;
-	}
-	
-	/**
-	 * Two {@link MapCell}s are similar if they differ at least <threshold> {@link Property}
-	 * @param other other {@link MapCell}
-	 * @return true, if the two cells have at least <threshold> {@link Property} NOT in common
-	 */
-	public boolean isSimilar(MapCell other, int threshold) {
-		int i = 0,j = 0,counter = 0;
-		while(counter < threshold && i < properties.size()) {
-			while(counter < threshold && j < other.getProperties().size()) {
-				if(!properties.get(i).equals(other.getProperties().get(j))) {
-					counter++;
-				}
-				j++;
-			}
-			i++;
-		}
-		return counter < threshold;
 	}
 	
 	@Override

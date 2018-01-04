@@ -4,9 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import listener.IDragonListener;
 import listener.IListenable;
@@ -56,10 +61,10 @@ import command.server.SpawnDragonCommand;
 
 import environment.MapCell;
 import environment.ServerClock;
-import environment.ServerMapCell;
 import environment.entity.Dragon;
 import environment.entity.Player;
 import environment.wrapper.ServerDragon;
+import environment.wrapper.ServerEntity;
 import environment.wrapper.ServerMap;
 import exception.MapException;
 
@@ -68,7 +73,7 @@ import exception.MapException;
  *
  * @author Daniel
  */
-public class Server implements ITokenizable, IListenable<IServerListener>,
+public class Server implements IListenable<IServerListener>,
 		IMapListener, IDragonListener {
 	public static final int serverVersionMajor = 2;
 	public static final int serverVersionMinor = 0;
@@ -76,6 +81,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	private boolean running = false;
 	private int port;
+	private ObjectMapper objectMapper;
 	private ServerMap map;
 	private ServerSocket socket;
 	private final ServerClock ticker = new ServerClock(this);
@@ -85,6 +91,13 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	private final CopyOnWriteArrayList<TcpClient> clients = new CopyOnWriteArrayList<TcpClient>();
 	private final TopLevelCommand<Server> serverCommands = new TopLevelCommand<Server>();
 	private final TopLevelCommand<TcpClient> clientCommands = new TopLevelCommand<TcpClient>();
+	
+	/**
+	 * @return {@link ObjectMapper} used to JSON-serialise objects
+	 */
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
 
 	/**
 	 * @return {@link Logger} that is currently in use
@@ -158,6 +171,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 			logger.accept(MessageType.GENERIC, MessageType.INFO,
 					MessageType.ERROR, MessageType.NOTIFICATION,
 					MessageType.OUTPUT, MessageType.DEBUG);
+			objectMapper = new ObjectMapper();
 			map.getListeners().add(this);
 			getListeners().add(map);
 			serverCommands.addSubcommand(new HelpCommand());
@@ -198,10 +212,18 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 		} catch (final MapException me) {
 			logger.println("Map initialisation error: " + me.getMessage(),
 					MessageType.ERROR);
-			// me.printStackTrace();
 			System.exit(1);
 		}
 
+	}
+	
+	public Optional<String> json(Object o) {
+		try {
+			return Optional.of(getObjectMapper().writeValueAsString(o));
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return Optional.empty();
+		}
 	}
 
 	/**
@@ -290,7 +312,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 *            ready {@link TcpClient}
 	 */
 	public void ready(final TcpClient _client) {
-		broadcast(_client.getPlayer(), ServerConst.UPD);
+		broadcast(_client.getPlayer().getWrappedObject(), ServerConst.UPD);
 		listeners.add(_client.getPlayer());
 	}
 
@@ -305,7 +327,7 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 */
 	synchronized public void terminate(final TcpClient _client) {
 		listeners.remove(_client.getPlayer());
-		broadcast(_client.getPlayer(), ServerConst.DEL);
+		broadcast(_client.getPlayer().getWrappedObject(), ServerConst.DEL);
 	}
 
 	/**
@@ -376,11 +398,19 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	public synchronized void broadcast(final ITokenizable _tok) {
 		TcpClient client;
 		final Iterator<TcpClient> it = this.clients.iterator();
-		while (it.hasNext()) {
-			client = it.next();
-			if (!client.isClosed()) {
-				client.flushTokenizable(_tok);
+		String json;
+		try {
+			json = getObjectMapper().writeValueAsString(_tok);
+			while (it.hasNext()) {
+				client = it.next();
+				if (!client.isClosed()) {
+					// client.flushTokenizable(_tok);
+					client.send(json);
+				}
 			}
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -393,9 +423,14 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 	 * @param _type
 	 *            surrounding tag if any. This allows us to send typed messages,
 	 *            such as updates
+	 * @throws Exception 
 	 */
+	@Deprecated
 	public synchronized void broadcast(final ITokenizable _tok,
-			final String _type) {
+			final String _type) throws Exception {
+		if(true) {
+			throw new Exception("Don't use this method");
+		}/*
 		TcpClient client;
 		final Iterator<TcpClient> it = clients.iterator();
 		while (it.hasNext()) {
@@ -406,17 +441,25 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 				client.sendTokenizable(_tok);
 				client.send(ServerConst.END + _type);
 				client.endMessage();
+				
+			}
+		
+		}
+		*/
+	}
+	
+	// FIXME: replace above version with this one
+	public synchronized void broadcast(Object o, final String _type) {
+		TcpClient client;
+		final Iterator<TcpClient> it = clients.iterator();
+		while (it.hasNext()) {
+			client = it.next();
+			if (!client.isClosed()) {
+				Map<String, Object> mes = new HashMap<>();
+				mes.put(_type, o);
+				client.send(json(mes).get());
 			}
 		}
-	}
-
-	@Override
-	public ArrayList<String> tokenize() {
-		final ArrayList<String> tokens = new ArrayList<String>();
-		tokens.add(ServerConst.BEGIN + ServerConst.SERVER);
-		tokens.add(ServerConst.VERSION + getVersion());
-		tokens.add(ServerConst.END + ServerConst.SERVER);
-		return tokens;
 	}
 
 	@Override
@@ -426,18 +469,20 @@ public class Server implements ITokenizable, IListenable<IServerListener>,
 
 	@Override
 	public void onToggleHuntable(final MapCell cell, final boolean huntable) {
-		broadcast(new ServerMapCell(cell, this), ServerConst.UPD);
+		broadcast(cell, ServerConst.UPD);
 	}
 
 	@Override
 	public void onSpawnDragon(final MapCell cell, final Dragon dragon) {
-		broadcast(new ServerDragon(dragon, this, true), ServerConst.UPD);
+		// to preserve storage to DB should it get implemented one day...
+		new ServerDragon(dragon, this, true);
+		broadcast(dragon, ServerConst.UPD);
 	}
 
 	@Override
 	public void onMove(final ServerDragon dragon, final Vector2D oldpos,
 			final Vector2D newpos) {
-		broadcast(dragon, ServerConst.UPD);
+		broadcast(dragon.getWrappedObject(), ServerConst.UPD);
 	}
 
 	public static void main(final String[] args) throws IOException {

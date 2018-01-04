@@ -40,7 +40,7 @@ public class ServerPlayer extends ServerEntity<Player> implements IListenable<IP
 	public void addPoints(int _amount) {
 		wrapped.addPoints(_amount);
 		if(!destructed && _amount != 0) {
-			server.broadcast(this, ServerConst.UPD);
+			server.broadcast(this.getWrappedObject(), ServerConst.UPD);
 		}
 	}
 	

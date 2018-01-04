@@ -53,7 +53,7 @@ public class AskMoveCommand extends ClientCommand {
 			_src.send(ServerConst.ANS+answer);
 			_src.endMessage();
 			if(answer.equals(ServerConst.ANS_YES)) {
-				server.broadcast(_src.getPlayer(), ServerConst.UPD);
+				server.broadcast(_src.getPlayer().getWrappedObject(), ServerConst.UPD);
 			}
 			result = 1;
 		}
