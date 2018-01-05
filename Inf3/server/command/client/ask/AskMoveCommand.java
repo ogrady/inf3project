@@ -40,17 +40,13 @@ public class AskMoveCommand extends ClientCommand {
 		}
 		if (result != Command.EXCEPTION) {
 			final MapCell cell = _server.getMap().getWrappedObject().getCellAt(x, y);
-			String answer = ServerConst.ANS_NO;
 			if (!src.getPlayer().getWrappedObject().isBusy() && cell != null && cell.hasProperty(Property.WALKABLE)) {
-				answer = ServerConst.ANS_YES;
 				pos.x = x;
 				pos.y = y;
-			}
-			src.beginMessage();
-			src.send(ServerConst.ANS + answer);
-			src.endMessage();
-			if (answer.equals(ServerConst.ANS_YES)) {
+				src.sendOk();
 				_server.broadcast(src.getPlayer().getWrappedObject(), ServerConst.UPD);
+			} else {
+				src.sendNo();
 			}
 			result = Command.PROCESSED;
 		}

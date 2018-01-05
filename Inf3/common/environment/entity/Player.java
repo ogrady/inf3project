@@ -12,6 +12,7 @@ import util.SyncedMap;
  * @author Daniel
  *
  */
+// FIXME: updates send minigame decisions with them
 final public class Player extends Entity {
 	// db here
 	public static SyncedMap<Player> instances = new SyncedMap<>();
