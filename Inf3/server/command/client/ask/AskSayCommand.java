@@ -1,12 +1,11 @@
 package command.client.ask;
 
-import server.TcpClient;
-import server.Server;
-import util.Message;
-import util.ServerConst;
-
 import command.ClientCommand;
 import command.Command;
+import server.Server;
+import server.TcpClient;
+import util.Message;
+import util.ServerConst;
 
 public class AskSayCommand extends ClientCommand {
 
@@ -15,11 +14,12 @@ public class AskSayCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		_src.beginMessage();
-		_src.send(ServerConst.ANS+ServerConst.ANS_YES);
-		_src.endMessage();
-		server.broadcast(new Message(_src.getPlayer().getWrappedObject().getId(), _src.getPlayer().getWrappedObject().getDescription(), _cmd));
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		src.beginMessage();
+		src.send(ServerConst.ANS + ServerConst.ANS_YES);
+		src.endMessage();
+		_server.broadcast(new Message(src.getPlayer().getWrappedObject().getId(),
+				src.getPlayer().getWrappedObject().getDescription(), cmd));
 		return Command.PROCESSED;
 	}
 }

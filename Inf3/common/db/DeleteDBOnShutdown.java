@@ -1,6 +1,5 @@
 package db;
 
-
 public class DeleteDBOnShutdown extends DeleteFileOnShutdownHook {
 
 	public DeleteDBOnShutdown(String _file) {
@@ -10,7 +9,7 @@ public class DeleteDBOnShutdown extends DeleteFileOnShutdownHook {
 	@Override
 	public void run() {
 		// db here
-		//Const.db.close();
+		// Const.db.close();
 		super.run();
 	}
 }

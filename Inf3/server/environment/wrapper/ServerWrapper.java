@@ -4,17 +4,21 @@ import server.Server;
 import util.IWrapper;
 
 abstract public class ServerWrapper<E> implements IWrapper<E> {
-	protected E wrapped;
-	protected Server server;
+	protected E _wrapped;
+	protected Server _server;
 
 	@Override
-	public E getWrappedObject() { return wrapped; }
+	public E getWrappedObject() {
+		return _wrapped;
+	}
 
 	@Override
-	public void setWrappedObject(E _wrapped) { wrapped = _wrapped; }
+	public void setWrappedObject(E wrapped) {
+		_wrapped = wrapped;
+	}
 
-	public ServerWrapper(E _wrappedObject, Server _server) {
-		wrapped = _wrappedObject; 
-		server = _server;
+	public ServerWrapper(E wrappedObject, Server server) {
+		_wrapped = wrappedObject;
+		_server = server;
 	}
 }

@@ -1,17 +1,17 @@
 package arena.staghunt;
 
-import server.TcpClient;
 import arena.Opponent;
 import environment.entity.StaghuntDecision;
+import server.TcpClient;
 
 public class StaghuntOpponent extends Opponent<StaghuntDecision> {
 
-	public StaghuntOpponent(final TcpClient _player) {
-		super(_player);
+	public StaghuntOpponent(final TcpClient player) {
+		super(player);
 	}
 
 	@Override
 	protected StaghuntDecision getNewDecision() {
-		return player.getPlayer().getWrappedObject().getStaghuntDecision();
+		return _player.getPlayer().getWrappedObject().getStaghuntDecision();
 	}
 }

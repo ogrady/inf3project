@@ -2,6 +2,9 @@ package arena;
 
 import java.util.ArrayList;
 
+import arena.dragonfight.DragonArena;
+import arena.dragonfight.DragonOpponent;
+import environment.wrapper.ServerPlayer;
 import listener.IPlayerListener;
 import server.Server;
 import server.TcpClient;
@@ -10,9 +13,6 @@ import util.Configuration;
 import util.Const;
 import util.ServerConst;
 import util.ServerMessage;
-import arena.dragonfight.DragonArena;
-import arena.dragonfight.DragonOpponent;
-import environment.wrapper.ServerPlayer;
 
 /**
  * An {@link Arena} for minigames. Each {@link Arena} can hold up to two players
@@ -34,94 +34,88 @@ import environment.wrapper.ServerPlayer;
  * @param <T>
  *            {@link Opponent}s that can compete in this {@link Arena}
  */
-public abstract class Arena<T extends Opponent<?>> implements Runnable,
-		ITokenizable, IPlayerListener {
-	protected T player1, player2;
-	protected int rounds, curRound;
-	protected boolean running;
-	protected boolean destructed;
-	protected Thread thread;
-	protected Server server;
+public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokenizable, IPlayerListener {
+	protected T _player1, _player2;
+	protected int _rounds, _curRound;
+	protected boolean _running;
+	protected boolean _destructed;
+	protected Thread _thread;
+	protected Server _server;
 
 	public T getChallenger() {
-		return player1;
+		return _player1;
 	}
 
 	public T getChallenged() {
-		return player2;
+		return _player2;
 	}
 
 	/**
 	 * A {@link Arena} can be in waiting state if the challenged player hasn't
-	 * accepted or denied the challenge yet. As soon as both players accepted,
-	 * the minigame will start and the {@link Arena} will be put into the
-	 * running state.<br>
+	 * accepted or denied the challenge yet. As soon as both players accepted, the
+	 * minigame will start and the {@link Arena} will be put into the running
+	 * state.<br>
 	 *
-	 * @return true, if both players accepted the challenge and the arena is
-	 *         active and we haven't reached the max. round-number yet
+	 * @return true, if both players accepted the challenge and the arena is active
+	 *         and we haven't reached the max. round-number yet
 	 */
 	public boolean isRunning() {
-		return running && curRound < rounds;
+		return _running && _curRound < _rounds;
 	}
 
 	/**
 	 * Constructor creates an {@link Arena} that plays up to "_rounds" rounds
 	 *
-	 * @param _owner
+	 * @param owner
 	 *            player that created the {@link Arena} by challenging another
 	 *            player
-	 * @param _challenged
+	 * @param challenged
 	 *            player that was challenged and yet has to accept
 	 * @param _rounds
 	 *            rounds to play until the minigame ended
 	 */
-	public Arena(final Server _server, final TcpClient _owner,
-			final TcpClient _challenged, final int _rounds) {
-		server = _server;
-		player1 = wrap(_owner);
-		player2 = wrap(_challenged);
-		rounds = _rounds;
+	public Arena(final Server server, final TcpClient owner, final TcpClient challenged, final int rounds) {
+		_server = server;
+		_player1 = wrap(owner);
+		_player2 = wrap(challenged);
+		_rounds = rounds;
 	}
 
 	/**
-	 * Destructor can be overridden to do some cleanup after the minigame has
-	 * ended. Will be called before the thread terminates.
+	 * Destructor can be overridden to do some cleanup after the minigame has ended.
+	 * Will be called before the thread terminates.
 	 */
 	protected void destruct() {
-		running = false;
-		player1.getClient().getPlayer().addPoints(player1.getTotalPoints());
-		player2.getClient().getPlayer().addPoints(player2.getTotalPoints());
-		player1.getClient().getPlayer().setBusy(false);
-		player2.getClient().getPlayer().setBusy(false);
-		player1.getClient().getPlayer().getListeners().unregisterListener(this);
-		player2.getClient().getPlayer().getListeners().unregisterListener(this);
-		player1.getClient().flushTokenizable(
-				new ServerMessage("game has ended"));
-		player2.getClient().flushTokenizable(
-				new ServerMessage("game has ended"));
-		player1.getClient().getPlayer().setArena(null);
-		player2.getClient().getPlayer().setArena(null);
-		player1 = null;
-		player2 = null;
+		_running = false;
+		_player1.getClient().getPlayer().addPoints(_player1.getTotalPoints());
+		_player2.getClient().getPlayer().addPoints(_player2.getTotalPoints());
+		_player1.getClient().getPlayer().setBusy(false);
+		_player2.getClient().getPlayer().setBusy(false);
+		_player1.getClient().getPlayer().getListeners().unregisterListener(this);
+		_player2.getClient().getPlayer().getListeners().unregisterListener(this);
+		_player1.getClient().flushTokenizable(new ServerMessage("game has ended"));
+		_player2.getClient().flushTokenizable(new ServerMessage("game has ended"));
+		_player1.getClient().getPlayer().setArena(null);
+		_player2.getClient().getPlayer().setArena(null);
+		_player1 = null;
+		_player2 = null;
 	}
 
 	/**
 	 * Make an attempt to enter the {@link Arena}. This will only succeed if the
 	 * entering player is the challenged player (player2). Entering the
-	 * {@link Arena} will immediately start the minigame by calling
-	 * {@link #run()} with a wrapping thread.
+	 * {@link Arena} will immediately start the minigame by calling {@link #run()}
+	 * with a wrapping thread.
 	 *
-	 * @param _cl
-	 * @return true, if entering succeeded, false if not (player was not
-	 *         invited)
+	 * @param cl
+	 * @return true, if entering succeeded, false if not (player was not invited)
 	 */
-	public boolean enter(final TcpClient _cl) {
+	public boolean enter(final TcpClient cl) {
 		boolean entered = false;
-		if (_cl.equals(player2.getClient())) {
-			new Thread(this, String.format("arena (%d vs %d)", player1
-					.getClient().getPlayer().getWrappedObject().getId(),
-					player2.getClient().getPlayer().getWrappedObject().getId()))
-					.start();
+		if (cl.equals(_player2.getClient())) {
+			new Thread(this,
+					String.format("arena (%d vs %d)", _player1.getClient().getPlayer().getWrappedObject().getId(),
+							_player2.getClient().getPlayer().getWrappedObject().getId())).start();
 			entered = true;
 		}
 		return entered;
@@ -129,25 +123,22 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 
 	@Override
 	public void run() {
-		running = true;
+		_running = true;
 		if (prerequisites()) {
-			player1.getClient().getPlayer().getListeners()
-					.registerListener(this);
-			player2.getClient().getPlayer().getListeners()
-					.registerListener(this);
-			player1.getClient().getPlayer().setBusy(true);
-			player2.getClient().getPlayer().setBusy(true);
+			_player1.getClient().getPlayer().getListeners().registerListener(this);
+			_player2.getClient().getPlayer().getListeners().registerListener(this);
+			_player1.getClient().getPlayer().setBusy(true);
+			_player2.getClient().getPlayer().setBusy(true);
 			// while (running && curRound < rounds) {
 			while (isRunning()) {
 				try {
-					Thread.sleep(Configuration.getInstance().getLong(
-							Configuration.MINIGAME_ROUND_DELAY));
+					Thread.sleep(Configuration.getInstance().getLong(Configuration.MINIGAME_ROUND_DELAY));
 					doRound();
 					sendResult();
 				} catch (final Exception e) {
 					e.printStackTrace();
 				}
-				curRound++;
+				_curRound++;
 			}
 		}
 		destruct();
@@ -157,28 +148,24 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 * Sends the result of one round to both players (see {@link #tokenize()}).
 	 */
 	protected void sendResult() {
-		player1.getClient().flushTokenizable(this);
-		player2.getClient().flushTokenizable(this);
-		player1.getClient().flushTokenizable(
-				new ServerMessage(String.format(
-						"At the end of round %d you have a total of %d points",
-						curRound, player1.getTotalPoints())));
-		player2.getClient().flushTokenizable(
-				new ServerMessage(String.format(
-						"At the end of round %d you have a total of %d points",
-						curRound, player2.getTotalPoints())));
+		_player1.getClient().flushTokenizable(this);
+		_player2.getClient().flushTokenizable(this);
+		_player1.getClient().flushTokenizable(new ServerMessage(String
+				.format("At the end of round %d you have a total of %d points", _curRound, _player1.getTotalPoints())));
+		_player2.getClient().flushTokenizable(new ServerMessage(String
+				.format("At the end of round %d you have a total of %d points", _curRound, _player2.getTotalPoints())));
 	}
 
 	/**
-	 * Plays one round by getting the latest decision of both players and
-	 * checking the pairing of the decisions of the opponents. Then adds the
-	 * points each player earned to their score.
+	 * Plays one round by getting the latest decision of both players and checking
+	 * the pairing of the decisions of the opponents. Then adds the points each
+	 * player earned to their score.
 	 */
 	protected void doRound() {
-		player1.decide();
-		player2.decide();
-		player1.addPoints(getPoints(player1, player2));
-		player2.addPoints(getPoints(player2, player1));
+		_player1.decide();
+		_player2.decide();
+		_player1.addPoints(getPoints(_player1, _player2));
+		_player2.addPoints(getPoints(_player2, _player1));
 	}
 
 	/**
@@ -196,35 +183,33 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	 */
 	@Override
 	public ArrayList<String> tokenize() {
-		final ArrayList<String> tokens = new ArrayList<String>();
+		final ArrayList<String> tokens = new ArrayList<>();
 		tokens.add(ServerConst.BEGIN + Const.PAR_RESULT);
-		tokens.add(Const.PAR_ROUND + curRound);
+		tokens.add(Const.PAR_ROUND + _curRound);
 		// -1 to do "foresight" whether this is the last round =
 		// "will the game be running for another round after this round?"
-		tokens.add(Const.PAR_RUNNING + (running && curRound < rounds - 1));
-		tokens.add(Const.PAR_DELAY
-				+ Configuration.getInstance().getInteger(
-						Configuration.MINIGAME_ROUND_DELAY));
+		tokens.add(Const.PAR_RUNNING + (_running && _curRound < _rounds - 1));
+		tokens.add(Const.PAR_DELAY + Configuration.getInstance().getInteger(Configuration.MINIGAME_ROUND_DELAY));
 		tokens.add(ServerConst.BEGIN + Const.PAR_OPPONENTS);
-		tokens.addAll(player1.tokenize());
-		tokens.addAll(player2.tokenize());
+		tokens.addAll(_player1.tokenize());
+		tokens.addAll(_player2.tokenize());
 		tokens.add(ServerConst.END + Const.PAR_OPPONENTS);
 		tokens.add(ServerConst.END + Const.PAR_RESULT);
 		return tokens;
 	}
 
 	@Override
-	public void onDisconnect(final ServerPlayer _player) {
+	public void onDisconnect(final ServerPlayer player) {
 		// this makes the minigame call destruct() after waking up the next time
-		running = false;
+		_running = false;
 	}
 
-	protected T getOpponent(final T _self) {
+	protected T getOpponent(final T self) {
 		T opponent = null;
-		if (_self.equals(player1)) {
-			opponent = player2;
-		} else if (_self.equals(player2)) {
-			opponent = player1;
+		if (self.equals(_player1)) {
+			opponent = _player2;
+		} else if (self.equals(_player2)) {
+			opponent = _player1;
 		}
 		return opponent;
 	}
@@ -232,37 +217,35 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable,
 	/**
 	 * Calculates the points for the last round by looking it up in the specific
 	 * matrix.<br>
-	 * The keys for the lookup are the ordinal numbers of the decision of the
-	 * two players in the enum. So the order of those is sensitive!
+	 * The keys for the lookup are the ordinal numbers of the decision of the two
+	 * players in the enum. So the order of those is sensitive!
 	 *
-	 * @param _p1Dec
+	 * @param p1Dec
 	 *            player1s wrapper from which the decision is taken
-	 * @param _p2Dec
+	 * @param p2Dec
 	 *            player2s wrapper from which the decision is taken
 	 * @return the points for player passed as first argument
 	 */
 	// abstract protected int getPoints(T _p1Dec, T _p2Dec);
-	private int getPoints(final T _p1Dec, final T _p2Dec) {
+	private int getPoints(final T p1Dec, final T p2Dec) {
 		final int[][] matrix = getMatrix();
-		return matrix[_p1Dec.getNewDecision().ordinal()][_p2Dec
-				.getNewDecision().ordinal()];
+		return matrix[p1Dec.getNewDecision().ordinal()][p2Dec.getNewDecision().ordinal()];
 	}
 
 	/**
-	 * Processes a {@link TcpClient} by wrapping an arena-specific player around
-	 * it. For example in a {@link DragonArena} the {@link TcpClient}s will be
-	 * wrapped into {@link DragonOpponent}s. Their type is specified by the
-	 * generic T.
+	 * Processes a {@link TcpClient} by wrapping an arena-specific player around it.
+	 * For example in a {@link DragonArena} the {@link TcpClient}s will be wrapped
+	 * into {@link DragonOpponent}s. Their type is specified by the generic T.
 	 *
-	 * @param _cl
+	 * @param cl
 	 *            {@link TcpClient} that should be wrapped
 	 * @return wrapped version of the {@link TcpClient}
 	 */
-	abstract protected T wrap(TcpClient _cl);
+	abstract protected T wrap(TcpClient cl);
 
 	/**
-	 * Checks whether the prerequisites for starting the game are met. Otherwise
-	 * the game will be canceled.
+	 * Checks whether the prerequisites for starting the game are met. Otherwise the
+	 * game will be canceled.
 	 *
 	 * @return true, if all prerequisites are met
 	 */

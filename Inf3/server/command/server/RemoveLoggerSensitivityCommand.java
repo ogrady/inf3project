@@ -13,14 +13,14 @@ public class RemoveLoggerSensitivityCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		int success = 1;
 		try {
-			_src.getLogger().dismiss(MessageType.valueOf(_cmd.toUpperCase()));
-			_mes.append(String.format("Successfully removed '%s' from the sensitivity", _cmd));
-		} catch(IllegalArgumentException iae) {
+			src.getLogger().dismiss(MessageType.valueOf(cmd.toUpperCase()));
+			mes.append(String.format("Successfully removed '%s' from the sensitivity", cmd));
+		} catch (IllegalArgumentException iae) {
 			success = -1;
-			_mes.append(String.format("Could not remove '%s' from the sensitivity", _cmd));
+			mes.append(String.format("Could not remove '%s' from the sensitivity", cmd));
 		}
 		return success;
 	}

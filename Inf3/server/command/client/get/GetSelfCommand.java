@@ -1,13 +1,12 @@
 package command.client.get;
 
-import server.TcpClient;
-import server.Server;
-import util.ServerConst;
-
 import java.util.Optional;
 
 import command.ClientCommand;
 import command.Command;
+import server.Server;
+import server.TcpClient;
+import util.ServerConst;
 
 public class GetSelfCommand extends ClientCommand {
 
@@ -16,10 +15,10 @@ public class GetSelfCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		Optional<String> json = server.json(_src.getPlayer().getWrappedObject());
-		if(json.isPresent()) {
-			_src.send(json.get());
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final Optional<String> json = _server.json(src.getPlayer().getWrappedObject());
+		if (json.isPresent()) {
+			src.send(json.get());
 			return Command.PROCESSED;
 		} else {
 			return Command.EXCEPTION;

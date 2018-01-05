@@ -17,14 +17,15 @@ public class ListEntitiesCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		String list = "";
 		Collection<Entity> entities = Entity.getEntities();
-		for(Entity ent : entities) {
-			list += String.format("%d: %s[%d|%d] (%s)\r\n",ent.getId(),ent.getDescription(),ent.getPosition().x,ent.getPosition().y,ent.getClass().getSimpleName());
+		for (Entity ent : entities) {
+			list += String.format("%d: %s[%d|%d] (%s)\r\n", ent.getId(), ent.getDescription(), ent.getPosition().x,
+					ent.getPosition().y, ent.getClass().getSimpleName());
 		}
-		_src.getLogger().print(list, MessageType.INFO);
-		_mes.append(String.format("Succesfully listed %d entities", entities.size()));
+		src.getLogger().print(list, MessageType.INFO);
+		mes.append(String.format("Succesfully listed %d entities", entities.size()));
 		return 1;
 	}
 }

@@ -16,26 +16,26 @@ public class InfoCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		int result = 1;
 		try {
-			int id = Integer.parseInt(_cmd);
-			TcpClient next,client = null;
-			Iterator<TcpClient> it = _src.getClients().iterator();
-			while(it.hasNext()) {
+			int id = Integer.parseInt(cmd);
+			TcpClient next, client = null;
+			Iterator<TcpClient> it = src.getClients().iterator();
+			while (it.hasNext()) {
 				next = it.next();
-				if(id == next.getPlayer().getWrappedObject().getId()) {
+				if (id == next.getPlayer().getWrappedObject().getId()) {
 					client = next;
 				}
 			}
-			if(client == null) {
-				_mes.append(String.format("No client with ID %s",_cmd));
+			if (client == null) {
+				mes.append(String.format("No client with ID %s", cmd));
 				result = -1;
 			} else {
-				_src.getLogger().println(client.getPlayer().getWrappedObject().toVerboseString(), MessageType.INFO);
+				src.getLogger().println(client.getPlayer().getWrappedObject().toVerboseString(), MessageType.INFO);
 			}
-		} catch(NumberFormatException nfe) {
-			_mes.append(String.format("Tried to retreive info for invalid ID '%s'", _cmd));
+		} catch (NumberFormatException nfe) {
+			mes.append(String.format("Tried to retreive info for invalid ID '%s'", cmd));
 			result = -1;
 		}
 		return result;

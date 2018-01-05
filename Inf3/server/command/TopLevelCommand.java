@@ -6,12 +6,12 @@ public class TopLevelCommand<S> extends Command<S> {
 	}
 
 	@Override
-	public int execute(S _src, String _cmd, StringBuilder _mes) {
-		return executeSubcommands(_src, _cmd, _mes);
+	public int execute(S src, String cmd, StringBuilder mes) {
+		return executeSubcommands(src, cmd, mes);
 	}
 
 	@Override
-	protected int routine(S _src, String _cmd, StringBuilder _mes) {
+	protected int routine(S src, String cmd, StringBuilder mes) {
 		return 0;
 	}
 }

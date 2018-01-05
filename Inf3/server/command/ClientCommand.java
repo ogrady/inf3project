@@ -1,13 +1,13 @@
 package command;
 
-import server.TcpClient;
 import server.Server;
+import server.TcpClient;
 
 abstract public class ClientCommand extends Command<TcpClient> {
-	protected Server server;
-	
-	public ClientCommand(Server _server, String _sensitive) {
-		super(_sensitive);
-		server = _server;
+	protected Server _server;
+
+	public ClientCommand(Server server, String sensitive) {
+		super(sensitive);
+		_server = server;
 	}
 }

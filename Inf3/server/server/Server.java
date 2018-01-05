@@ -13,22 +13,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import listener.IDragonListener;
-import listener.IListenable;
-import listener.IMapListener;
-import listener.IServerListener;
-import listener.ListenerSet;
-import output.Logger;
-import output.Logger.MessageType;
-import output.TimeLogger;
-import tokenizer.ITokenizable;
-import util.Configuration;
-import util.Const;
-import util.ServerConst;
-import util.ServerMessage;
-import util.ServerState;
-import util.Vector2D;
-
 import command.ClientCommand;
 import command.ServerCommand;
 import command.TopLevelCommand;
@@ -58,7 +42,6 @@ import command.server.LoggerSensitivityCommand;
 import command.server.ReloadCommand;
 import command.server.ShutdownCommand;
 import command.server.SpawnDragonCommand;
-
 import environment.MapCell;
 import environment.ServerClock;
 import environment.entity.Dragon;
@@ -66,50 +49,64 @@ import environment.entity.Player;
 import environment.wrapper.ServerDragon;
 import environment.wrapper.ServerMap;
 import exception.MapException;
+import listener.IDragonListener;
+import listener.IListenable;
+import listener.IMapListener;
+import listener.IServerListener;
+import listener.ListenerSet;
+import output.Logger;
+import output.Logger.MessageType;
+import output.TimeLogger;
+import tokenizer.ITokenizable;
+import util.Configuration;
+import util.Const;
+import util.ServerConst;
+import util.ServerMessage;
+import util.ServerState;
+import util.Vector2D;
 
 /**
  * Server for the game
  *
  * @author Daniel
  */
-public class Server implements IListenable<IServerListener>,
-		IMapListener, IDragonListener {
+public class Server implements IListenable<IServerListener>, IMapListener, IDragonListener {
 	public static final int serverVersionMajor = 2;
 	public static final int serverVersionMinor = 0;
 	public static final ServerState serverState = ServerState.EXPERIMENTAL;
 
-	private boolean running = false;
-	private int port;
-	private ObjectMapper objectMapper;
-	private ServerMap map;
-	private ServerSocket socket;
-	private final ServerClock ticker = new ServerClock(this);
-	private final Logger logger = new TimeLogger();
-	private final ListenerSet<IServerListener> listeners = new ListenerSet<IServerListener>();;
-	private final ConsoleInput consoleInput = new ConsoleInput(this);
-	private final CopyOnWriteArrayList<TcpClient> clients = new CopyOnWriteArrayList<TcpClient>();
-	private final TopLevelCommand<Server> serverCommands = new TopLevelCommand<Server>();
-	private final TopLevelCommand<TcpClient> clientCommands = new TopLevelCommand<TcpClient>();
-	
+	private boolean _running = false;
+	private int _port;
+	private ObjectMapper _objectMapper;
+	private ServerMap _map;
+	private ServerSocket _socket;
+	private final ServerClock _clock = new ServerClock(this);
+	private final Logger _logger = new TimeLogger();
+	private final ListenerSet<IServerListener> _listeners = new ListenerSet<>();;
+	private final ConsoleInput _consoleInput = new ConsoleInput(this);
+	private final CopyOnWriteArrayList<TcpClient> _clients = new CopyOnWriteArrayList<>();
+	private final TopLevelCommand<Server> _serverCommands = new TopLevelCommand<>();
+	private final TopLevelCommand<TcpClient> _clientCommands = new TopLevelCommand<>();
+
 	/**
 	 * @return {@link ObjectMapper} used to JSON-serialise objects
 	 */
 	public ObjectMapper getObjectMapper() {
-		return objectMapper;
+		return _objectMapper;
 	}
 
 	/**
 	 * @return {@link Logger} that is currently in use
 	 */
 	public Logger getLogger() {
-		return logger;
+		return _logger;
 	}
 
 	/**
 	 * @return the {@link ServerMap} the server is using
 	 */
 	public ServerMap getMap() {
-		return map;
+		return _map;
 	}
 
 	/**
@@ -117,7 +114,7 @@ public class Server implements IListenable<IServerListener>,
 	 *         currently running
 	 */
 	public CopyOnWriteArrayList<TcpClient> getClients() {
-		return clients;
+		return _clients;
 	}
 
 	/**
@@ -129,7 +126,7 @@ public class Server implements IListenable<IServerListener>,
 	 *         exists
 	 */
 	public TcpClient getClientById(final int _id) {
-		final Iterator<TcpClient> it = clients.iterator();
+		final Iterator<TcpClient> it = _clients.iterator();
 		TcpClient next, result = null;
 		while (it.hasNext() && result == null) {
 			next = it.next();
@@ -144,14 +141,14 @@ public class Server implements IListenable<IServerListener>,
 	 * @return {@link ServerCommand}s that are currently bound
 	 */
 	public TopLevelCommand<Server> getServerCommands() {
-		return serverCommands;
+		return _serverCommands;
 	}
 
 	/**
 	 * @return {@link ClientCommand}s that are currently bound
 	 */
 	public TopLevelCommand<TcpClient> getClientCommands() {
-		return clientCommands;
+		return _clientCommands;
 	}
 
 	/**
@@ -162,25 +159,24 @@ public class Server implements IListenable<IServerListener>,
 	 * @throws IOException
 	 *             if opening the serversocket goes wrong
 	 */
-	public Server(final String _port, final File _mapFile) throws IOException {
+	public Server(final String port, final File _mapFile) throws IOException {
 		try {
-			port = Integer.parseInt(_port);
-			socket = new ServerSocket(port);
-			map = new ServerMap(_mapFile, this);
-			logger.accept(MessageType.GENERIC, MessageType.INFO,
-					MessageType.ERROR, MessageType.NOTIFICATION,
+			_port = Integer.parseInt(port);
+			_socket = new ServerSocket(_port);
+			_map = new ServerMap(_mapFile, this);
+			_logger.accept(MessageType.GENERIC, MessageType.INFO, MessageType.ERROR, MessageType.NOTIFICATION,
 					MessageType.OUTPUT, MessageType.DEBUG);
-			objectMapper = new ObjectMapper();
-			map.getListeners().add(this);
-			getListeners().add(map);
-			serverCommands.addSubcommand(new HelpCommand());
-			serverCommands.addSubcommand(new KickCommand());
-			serverCommands.addSubcommand(new ListCommand());
-			serverCommands.addSubcommand(new ShutdownCommand());
-			serverCommands.addSubcommand(new InfoCommand());
-			serverCommands.addSubcommand(new SpawnDragonCommand());
-			serverCommands.addSubcommand(new LoggerSensitivityCommand());
-			serverCommands.addSubcommand(new ReloadCommand());
+			_objectMapper = new ObjectMapper();
+			_map.getListeners().add(this);
+			getListeners().add(_map);
+			_serverCommands.addSubcommand(new HelpCommand());
+			_serverCommands.addSubcommand(new KickCommand());
+			_serverCommands.addSubcommand(new ListCommand());
+			_serverCommands.addSubcommand(new ShutdownCommand());
+			_serverCommands.addSubcommand(new InfoCommand());
+			_serverCommands.addSubcommand(new SpawnDragonCommand());
+			_serverCommands.addSubcommand(new LoggerSensitivityCommand());
+			_serverCommands.addSubcommand(new ReloadCommand());
 			final ClientCommand ask = new AskCommand(this);
 			ask.addSubcommand(new AskDisconnectCommand(this));
 			ask.addSubcommand(new AskMoveCommand(this));
@@ -199,27 +195,25 @@ public class Server implements IListenable<IServerListener>,
 			get.addSubcommand(new GetServertimeCommand(this));
 			get.addSubcommand(new GetUsersCommand(this));
 			get.addSubcommand(new GetRankingCommand(this));
-			clientCommands.addSubcommand(ask);
-			clientCommands.addSubcommand(get);
+			_clientCommands.addSubcommand(ask);
+			_clientCommands.addSubcommand(get);
 		} catch (final NumberFormatException nfe) {
-			logger.println("Invalid port: " + _port, MessageType.ERROR);
+			_logger.println("Invalid port: " + _port, MessageType.ERROR);
 			System.exit(1);
 		} catch (final IOException ioe) {
-			logger.println("Cannot use port " + _port
-					+ ". Is it already in use?", MessageType.ERROR);
+			_logger.println("Cannot use port " + _port + ". Is it already in use?", MessageType.ERROR);
 			System.exit(1);
 		} catch (final MapException me) {
-			logger.println("Map initialisation error: " + me.getMessage(),
-					MessageType.ERROR);
+			_logger.println("Map initialisation error: " + me.getMessage(), MessageType.ERROR);
 			System.exit(1);
 		}
 
 	}
-	
+
 	public Optional<String> json(Object o) {
 		try {
 			return Optional.of(getObjectMapper().writeValueAsString(o));
-		} catch (JsonProcessingException e) {
+		} catch (final JsonProcessingException e) {
 			e.printStackTrace();
 			return Optional.empty();
 		}
@@ -233,46 +227,35 @@ public class Server implements IListenable<IServerListener>,
 		final Logger header = new Logger();
 		header.accept(MessageType.GENERIC);
 		header.println("|----------------------------|");
-		header.println("|" + colLog + ".___        _____________   " + colRes
-				+ "|");
-		header.println("|" + colLog + "|   | _____/ ____\\_____  \\  " + colRes
-				+ "|");
-		header.println("|" + colLog + "|   |/    \\   __\\  _(__  <  " + colRes
-				+ "|");
-		header.println("|" + colLog + "|   |   |  |  |   /       \\ " + colRes
-				+ "|");
-		header.println("|" + colLog + "|___|___|  |__|  /______  / " + colRes
-				+ "|");
-		header.println("|" + colLog + "         \\/             \\/  " + colRes
-				+ "|");
+		header.println("|" + colLog + ".___        _____________   " + colRes + "|");
+		header.println("|" + colLog + "|   | _____/ ____\\_____  \\  " + colRes + "|");
+		header.println("|" + colLog + "|   |/    \\   __\\  _(__  <  " + colRes + "|");
+		header.println("|" + colLog + "|   |   |  |  |   /       \\ " + colRes + "|");
+		header.println("|" + colLog + "|___|___|  |__|  /______  / " + colRes + "|");
+		header.println("|" + colLog + "         \\/             \\/  " + colRes + "|");
 		header.println("|----------------------------|");
-		header.println("| " + colInfo + "Serverversion: " + colRes
-				+ getVersion());
+		header.println("| " + colInfo + "Serverversion: " + colRes + getVersion());
 		header.println("| " + colInfo + "State: " + colRes + serverState);
-		header.println("| " + colInfo + "Address: " + colRes
-				+ socket.getInetAddress());
-		header.println("| " + colInfo + "Port: " + colRes
-				+ socket.getLocalPort());
-		header.println("| " + colInfo + "Map: " + colRes + map.getMapFilePath());
+		header.println("| " + colInfo + "Address: " + colRes + _socket.getInetAddress());
+		header.println("| " + colInfo + "Port: " + colRes + _socket.getLocalPort());
+		header.println("| " + colInfo + "Map: " + colRes + _map.getMapFilePath());
 		header.println("| " + colInfo + "DB: " + colRes + Const.DB_NAME);
 		header.println("|----------------------------|");
 		header.println("Listening for clients...");
-		new Thread(ticker, "ticker").start();
-		new Thread(consoleInput, "console input").start();
-		running = true;
+		new Thread(_clock, "ticker").start();
+		new Thread(_consoleInput, "console input").start();
+		_running = true;
 		Socket sock;
-		while (running) {
+		while (_running) {
 			try {
-				sock = socket.accept();
+				sock = _socket.accept();
 				final TcpClient cl = new TcpClient(this, sock);
-				new Thread(cl, "client "
-						+ cl.getPlayer().getWrappedObject().getId()).start();
+				new Thread(cl, "client " + cl.getPlayer().getWrappedObject().getId()).start();
 			} catch (final IOException ioe) {
-				logger.println("Couldn't open streams. Disconnecting client.",
-						MessageType.ERROR);
+				_logger.println("Couldn't open streams. Disconnecting client.", MessageType.ERROR);
 			} catch (final Exception e) {
-				logger.println("Unexpected exception:", MessageType.ERROR);
-				logger.printException(e);
+				_logger.println("Unexpected exception:", MessageType.ERROR);
+				_logger.printException(e);
 			}
 		}
 	}
@@ -281,47 +264,46 @@ public class Server implements IListenable<IServerListener>,
 	 * Stops the server gracefully
 	 */
 	public synchronized void stop() {
-		if (running) {
-			running = false;
-			ticker.running = false;
-			consoleInput.running = false;
+		if (_running) {
+			_running = false;
+			_clock._running = false;
+			_consoleInput._running = false;
 			broadcast(new ServerMessage("shutting down server"));
-			for (final TcpClient cl : clients) {
+			for (final TcpClient cl : _clients) {
 				cl.close();
 			}
-			for (final IServerListener sl : listeners) {
+			for (final IServerListener sl : _listeners) {
 				sl.onShutdown(this);
 			}
-			listeners.unregisterAll();
+			_listeners.unregisterAll();
 			System.exit(0);
 		}
 	}
 
 	/**
-	 * Called by a {@link TcpClient} when he is ready and done setting itself
-	 * up. The new presence of the {@link TcpClient}s {@link Player} will then
-	 * be broadcasted to all other {@link Player}s He will then start to receive
-	 * ticks from the server too.
+	 * Called by a {@link TcpClient} when he is ready and done setting itself up.
+	 * The new presence of the {@link TcpClient}s {@link Player} will then be
+	 * broadcasted to all other {@link Player}s He will then start to receive ticks
+	 * from the server too.
 	 *
 	 * @param _client
 	 *            ready {@link TcpClient}
 	 */
 	public void ready(final TcpClient _client) {
 		broadcast(_client.getPlayer().getWrappedObject(), ServerConst.UPD);
-		listeners.add(_client.getPlayer());
+		_listeners.add(_client.getPlayer());
 	}
 
 	/**
-	 * Called by a {@link TcpClient} when he wishes to be terminated. He will
-	 * the proceed to shut himself down but gives the server the opportunity to
-	 * broadcast this event. Will also remove the player from the list of
-	 * listeners
+	 * Called by a {@link TcpClient} when he wishes to be terminated. He will the
+	 * proceed to shut himself down but gives the server the opportunity to
+	 * broadcast this event. Will also remove the player from the list of listeners
 	 *
 	 * @param _client
 	 *            terminating {@link TcpClient}
 	 */
 	synchronized public void terminate(final TcpClient _client) {
-		listeners.remove(_client.getPlayer());
+		_listeners.remove(_client.getPlayer());
 		broadcast(_client.getPlayer().getWrappedObject(), ServerConst.DEL);
 	}
 
@@ -332,7 +314,7 @@ public class Server implements IListenable<IServerListener>,
 	 *            new client
 	 */
 	public void addClient(final TcpClient _client) {
-		clients.add(_client);
+		_clients.add(_client);
 	}
 
 	/**
@@ -342,7 +324,7 @@ public class Server implements IListenable<IServerListener>,
 	 *            client to remove
 	 */
 	public void removeClient(final TcpClient _client) {
-		this.clients.remove(_client);
+		this._clients.remove(_client);
 	}
 
 	/**
@@ -353,8 +335,8 @@ public class Server implements IListenable<IServerListener>,
 	 */
 	public void processServerCommand(final String _cmd) {
 		final StringBuilder mes = new StringBuilder();
-		serverCommands.execute(this, _cmd, mes);
-		logger.println(mes.toString(), MessageType.OUTPUT);
+		_serverCommands.execute(this, _cmd, mes);
+		_logger.println(mes.toString(), MessageType.OUTPUT);
 	}
 
 	/**
@@ -367,7 +349,7 @@ public class Server implements IListenable<IServerListener>,
 	 */
 	public void processClientCommand(final TcpClient _src, final String _req) {
 		final StringBuilder mes = new StringBuilder();
-		final int result = clientCommands.execute(_src, _req, mes);
+		final int result = _clientCommands.execute(_src, _req, mes);
 		if (0 == result) {
 			_src.sendUnknown(_req);
 		} else if (-1 == result) {
@@ -378,7 +360,7 @@ public class Server implements IListenable<IServerListener>,
 		}
 		final String messtr = mes.toString().trim();
 		if (!messtr.equals("")) {
-			logger.println(mes.toString(), MessageType.OUTPUT);
+			_logger.println(mes.toString(), MessageType.OUTPUT);
 		}
 	}
 
@@ -392,7 +374,7 @@ public class Server implements IListenable<IServerListener>,
 	 */
 	public synchronized void broadcast(final ITokenizable _tok) {
 		TcpClient client;
-		final Iterator<TcpClient> it = this.clients.iterator();
+		final Iterator<TcpClient> it = this._clients.iterator();
 		String json;
 		try {
 			json = getObjectMapper().writeValueAsString(_tok);
@@ -403,54 +385,48 @@ public class Server implements IListenable<IServerListener>,
 					client.send(json);
 				}
 			}
-		} catch (JsonProcessingException e) {
+		} catch (final JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Broadcasts a {@link ITokenizable} object to all players with a
-	 * surrounding tag
+	 * Broadcasts a {@link ITokenizable} object to all players with a surrounding
+	 * tag
 	 *
 	 * @param _tok
 	 *            {@link ITokenizable} object
 	 * @param _type
 	 *            surrounding tag if any. This allows us to send typed messages,
 	 *            such as updates
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Deprecated
-	public synchronized void broadcast(final ITokenizable _tok,
-			final String _type) throws Exception {
-		if(true) {
+	public synchronized void broadcast(final ITokenizable _tok, final String _type) throws Exception {
+		if (true) {
 			throw new Exception("Don't use this method");
-		}/*
-		TcpClient client;
-		final Iterator<TcpClient> it = clients.iterator();
-		while (it.hasNext()) {
-			client = it.next();
-			if (!client.isClosed()) {
-				client.beginMessage();
-				client.send(ServerConst.BEGIN + _type);
-				client.sendTokenizable(_tok);
-				client.send(ServerConst.END + _type);
-				client.endMessage();
-				
-			}
-		
-		}
-		*/
+		} /*
+			 * TcpClient client; final Iterator<TcpClient> it = clients.iterator(); while
+			 * (it.hasNext()) { client = it.next(); if (!client.isClosed()) {
+			 * client.beginMessage(); client.send(ServerConst.BEGIN + _type);
+			 * client.sendTokenizable(_tok); client.send(ServerConst.END + _type);
+			 * client.endMessage();
+			 * 
+			 * }
+			 * 
+			 * }
+			 */
 	}
-	
+
 	// FIXME: replace above version with this one
 	public synchronized void broadcast(Object o, final String _type) {
 		TcpClient client;
-		final Iterator<TcpClient> it = clients.iterator();
+		final Iterator<TcpClient> it = _clients.iterator();
 		while (it.hasNext()) {
 			client = it.next();
 			if (!client.isClosed()) {
-				Map<String, Object> mes = new HashMap<>();
+				final Map<String, Object> mes = new HashMap<>();
 				mes.put(_type, o);
 				client.send(json(mes).get());
 			}
@@ -459,7 +435,7 @@ public class Server implements IListenable<IServerListener>,
 
 	@Override
 	public ListenerSet<IServerListener> getListeners() {
-		return listeners;
+		return _listeners;
 	}
 
 	@Override
@@ -475,29 +451,24 @@ public class Server implements IListenable<IServerListener>,
 	}
 
 	@Override
-	public void onMove(final ServerDragon dragon, final Vector2D oldpos,
-			final Vector2D newpos) {
+	public void onMove(final ServerDragon dragon, final Vector2D oldpos, final Vector2D newpos) {
 		broadcast(dragon.getWrappedObject(), ServerConst.UPD);
 	}
 
 	public static void main(final String[] args) throws IOException {
 		String port, map;
 		if (args.length < 2) {
-			port = Configuration.getInstance().getProperty(
-					Configuration.DEFAULT_SERVER_PORT);
-			map = Configuration.getInstance().getProperty(
-					Configuration.DEFAULT_MAP_PATH);
-			System.out
-					.println(String
-							.format("Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
-									Const.PATH_CONF));
+			port = Configuration.getInstance().getProperty(Configuration.DEFAULT_SERVER_PORT);
+			map = Configuration.getInstance().getProperty(Configuration.DEFAULT_MAP_PATH);
+			System.out.println(String.format(
+					"Application was not called with 2 arguments (1: port to run on, 2: path to map) Defaulting from config file (%s)...",
+					Const.PATH_CONF));
 		} else {
 			port = args[0];
 			map = args[1];
 		}
 		try {
-			System.out.println(String.format(
-					"Attempting to run server on port %s...", port));
+			System.out.println(String.format("Attempting to run server on port %s...", port));
 			new Server(port, new File(map)).run();
 		} catch (final Exception e) {
 			System.err.println("Failed to start server. Aborting.");

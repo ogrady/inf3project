@@ -16,28 +16,26 @@ public class KickNameCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		int result = 0;
 		TcpClient client = null, next;
-		Iterator<TcpClient> it = _src.getClients().iterator();
-		while(it.hasNext() && client == null) {
+		Iterator<TcpClient> it = src.getClients().iterator();
+		while (it.hasNext() && client == null) {
 			next = it.next();
-			if(_cmd.equals(next.getPlayer().getWrappedObject().getDescription())) {
+			if (cmd.equals(next.getPlayer().getWrappedObject().getDescription())) {
 				client = next;
 			}
 		}
-		if(client != null) {
+		if (client != null) {
 			result = 1;
-			_mes.append(String.format(String.format("Sucessfully kicked '%s'\r\n",_cmd)));
+			mes.append(String.format(String.format("Sucessfully kicked '%s'\r\n", cmd)));
 			client.flushTokenizable(new ServerMessage("you were kicked from the server"));
 			client.close();
 		} else {
 			result = -1;
-			_mes.append(String.format(String.format("Could not find player named '%s'\r\n",_cmd)));
+			mes.append(String.format(String.format("Could not find player named '%s'\r\n", cmd)));
 		}
 		return result;
 	}
-
-
 
 }

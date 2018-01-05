@@ -7,16 +7,15 @@ import util.ServerConst;
 import command.ClientCommand;
 
 public class AskChallengeCommand extends ClientCommand {
-	public AskChallengeCommand(final Server _server) {
-		super(_server, ServerConst.ASK_CHAL);
-		addSubcommand(new AskSkirmishChallengeCommand(_server));
-		addSubcommand(new AskDragonChallengeCommand(_server));
-		addSubcommand(new AskStaghuntChallengeCommand(_server));
+	public AskChallengeCommand(final Server server) {
+		super(server, ServerConst.ASK_CHAL);
+		addSubcommand(new AskSkirmishChallengeCommand(server));
+		addSubcommand(new AskDragonChallengeCommand(server));
+		addSubcommand(new AskStaghuntChallengeCommand(server));
 	}
 
 	@Override
-	protected int routine(final TcpClient _src, final String _cmd,
-			final StringBuilder _mes) {
-		return executeSubcommands(_src, _cmd, _mes);
+	protected int routine(final TcpClient src, final String cmd, final StringBuilder mes) {
+		return executeSubcommands(src, cmd, mes);
 	}
 }

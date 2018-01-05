@@ -7,12 +7,12 @@ import util.ServerConst;
 import command.ClientCommand;
 
 final public class AskCommand extends ClientCommand {
-	public AskCommand(Server _server) {
-		super(_server, ServerConst.CC_ASK);
+	public AskCommand(Server server) {
+		super(server, ServerConst.CC_ASK);
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		return executeSubcommands(_src, _cmd, _mes);
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		return executeSubcommands(src, cmd, mes);
 	}
 }

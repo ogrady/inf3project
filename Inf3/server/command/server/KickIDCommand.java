@@ -16,29 +16,29 @@ public class KickIDCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		int result = 0;
 		TcpClient client = null, next;
 		try {
-			int id = Integer.parseInt(_cmd);
-			Iterator<TcpClient> it = _src.getClients().iterator();
-			while(it.hasNext() && client == null) {
+			int id = Integer.parseInt(cmd);
+			Iterator<TcpClient> it = src.getClients().iterator();
+			while (it.hasNext() && client == null) {
 				next = it.next();
-				if(id == next.getPlayer().getWrappedObject().getId()) {
+				if (id == next.getPlayer().getWrappedObject().getId()) {
 					client = next;
 				}
 			}
-			if(client != null) {
+			if (client != null) {
 				result = 1;
-				_mes.append(String.format("Sucessfully kicked player with ID '%s'\r\n",_cmd));
+				mes.append(String.format("Sucessfully kicked player with ID '%s'\r\n", cmd));
 				client.flushTokenizable(new ServerMessage("you were kicked from the server"));
 				client.close();
 			} else {
 				result = -1;
-				_mes.append(String.format("Could not find player with ID '%s'\r\n",_cmd));
+				mes.append(String.format("Could not find player with ID '%s'\r\n", cmd));
 			}
-		} catch(NumberFormatException nfe) {
-			_mes.append(String.format("Invalid ID: '%s'\r\n",_cmd));
+		} catch (NumberFormatException nfe) {
+			mes.append(String.format("Invalid ID: '%s'\r\n", cmd));
 			result = -1;
 		}
 		return result;

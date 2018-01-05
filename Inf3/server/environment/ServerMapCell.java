@@ -2,21 +2,21 @@ package environment;
 
 import java.util.List;
 
+import environment.wrapper.ServerWrapper;
 import server.Server;
 import tokenizer.ITokenizable;
 import tokenizer.MapCellTokenizer;
-import environment.wrapper.ServerWrapper;
 
 public class ServerMapCell extends ServerWrapper<MapCell> implements ITokenizable {
-	private MapCellTokenizer tokenizer;
-	
-	public ServerMapCell(MapCell _mc, Server _server) {
-		super(_mc, _server);
+	private final MapCellTokenizer tokenizer;
+
+	public ServerMapCell(MapCell mc, Server server) {
+		super(mc, server);
 		tokenizer = new MapCellTokenizer();
 	}
 
 	@Override
 	public List<String> tokenize() {
-		return tokenizer.tokenize(wrapped);
+		return tokenizer.tokenize(_wrapped);
 	}
 }

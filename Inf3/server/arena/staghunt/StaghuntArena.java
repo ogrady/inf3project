@@ -13,33 +13,29 @@ public class StaghuntArena extends Arena<StaghuntOpponent> {
 			{ 1, 0 }, // b
 	};
 
-	public StaghuntArena(final Server _server, final TcpClient _owner,
-			final TcpClient _challenged, final int _rounds) {
-		super(_server, _owner, _challenged, _rounds);
+	public StaghuntArena(final Server server, final TcpClient owner, final TcpClient challenged, final int rounds) {
+		super(server, owner, challenged, rounds);
 	}
 
 	@Override
 	public void destruct() {
-		final Player p1 = player1.getClient().getPlayer().getWrappedObject();
-		server.getMap().setHuntableAt(p1.getPosition().x, p1.getPosition().y,
-				false);
+		final Player p1 = _player1.getClient().getPlayer().getWrappedObject();
+		_server.getMap().setHuntableAt(p1.getPosition().x, p1.getPosition().y, false);
 		super.destruct();
 	}
 
 	@Override
-	protected StaghuntOpponent wrap(final TcpClient _cl) {
-		return new StaghuntOpponent(_cl);
+	protected StaghuntOpponent wrap(final TcpClient cl) {
+		return new StaghuntOpponent(cl);
 	}
 
 	@Override
 	protected boolean prerequisites() {
 		// opposing players have to be at the same position
-		final Player p1 = player1.getClient().getPlayer().getWrappedObject();
-		final Player p2 = player2.getClient().getPlayer().getWrappedObject();
-		return p1.getPosition().equals(p2.getPosition())
-				&& server.getMap().getWrappedObject()
-				.getCellAt(p1.getPosition().x, p1.getPosition().y)
-				.hasProperty(Property.HUNTABLE);
+		final Player p1 = _player1.getClient().getPlayer().getWrappedObject();
+		final Player p2 = _player2.getClient().getPlayer().getWrappedObject();
+		return p1.getPosition().equals(p2.getPosition()) && _server.getMap().getWrappedObject()
+				.getCellAt(p1.getPosition().x, p1.getPosition().y).hasProperty(Property.HUNTABLE);
 	}
 
 	@Override

@@ -1,14 +1,13 @@
 package command.client.get;
 
-import server.TcpClient;
-import server.Server;
-import util.ServerConst;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import command.ClientCommand;
 import command.Command;
+import server.Server;
+import server.TcpClient;
+import util.ServerConst;
 
 public class GetOnlineCountCommand extends ClientCommand {
 
@@ -17,11 +16,11 @@ public class GetOnlineCountCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		Map<String,Integer> mes = new HashMap<>();
-		mes.put(ServerConst.ANS_COUNT, server.getClients().size());
-		_src.send(server.json(mes).get());
-		_mes.append("sent number of online users to "+_src);
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final Map<String, Integer> message = new HashMap<>();
+		message.put(ServerConst.ANS_COUNT, _server.getClients().size());
+		src.send(_server.json(message).get());
+		mes.append("sent number of online users to " + src);
 		return Command.PROCESSED;
 	}
 }

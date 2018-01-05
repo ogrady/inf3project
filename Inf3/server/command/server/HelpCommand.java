@@ -9,6 +9,7 @@ import command.TopLevelCommand;
 
 /**
  * Lists all registered server-commands.
+ * 
  * @author Daniel
  *
  */
@@ -18,11 +19,11 @@ public class HelpCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
-		TopLevelCommand<Server> servercommands = _src.getServerCommands();
+	protected int routine(Server src, String cmd, StringBuilder mes) {
+		TopLevelCommand<Server> servercommands = src.getServerCommands();
 		String cmds = servercommands.toString();
-		_src.getLogger().println(cmds, MessageType.INFO);
-		_mes.append(String.format("Detected %d active servercommands", cmds.split("\r\n").length));
+		src.getLogger().println(cmds, MessageType.INFO);
+		mes.append(String.format("Detected %d active servercommands", cmds.split("\r\n").length));
 		return 1;
 	}
 }

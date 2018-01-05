@@ -6,34 +6,38 @@ import java.io.InputStreamReader;
 
 /**
  * Receiver for the keyboard-input while the server is running
+ * 
  * @author Daniel
  */
 public class ConsoleInput implements Runnable {
-	private Server server;
-	public volatile boolean running;
+	private final Server _server;
+	public volatile boolean _running;
 
 	/**
 	 * Constructor
-	 * @param _server instance of the running server
+	 * 
+	 * @param _server
+	 *            instance of the running server
 	 */
-	public ConsoleInput(Server _server) {
-		server = _server;
+	public ConsoleInput(Server server) {
+		_server = server;
 	}
-	
+
 	/**
-	 * While the server is active, the {@link ConsoleInput} will attempt to read input from the console
-	 * and send it line by line to the server to process server-sided admin-commands
+	 * While the server is active, the {@link ConsoleInput} will attempt to read
+	 * input from the console and send it line by line to the server to process
+	 * server-sided admin-commands
 	 */
 	@Override
 	public void run() {
-		BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+		final BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
 		String input;
-		running = true;
+		_running = true;
 		try {
-			while(running && (input = console.readLine()) != null) {
-				server.processServerCommand(input);
+			while (_running && (input = console.readLine()) != null) {
+				_server.processServerCommand(input);
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}

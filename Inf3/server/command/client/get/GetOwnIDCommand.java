@@ -1,26 +1,25 @@
 package command.client.get;
 
-import server.TcpClient;
-import server.Server;
-import util.ServerConst;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import command.ClientCommand;
 import command.Command;
+import server.Server;
+import server.TcpClient;
+import util.ServerConst;
 
 public class GetOwnIDCommand extends ClientCommand {
 
-	public GetOwnIDCommand(Server _server) {
-		super(_server, ServerConst.GET_MY_ID);
+	public GetOwnIDCommand(Server server) {
+		super(server, ServerConst.GET_MY_ID);
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		Map<String, Integer> mes = new HashMap<>();
-		mes.put(ServerConst.ANS_MY_ID, _src.getPlayer().getWrappedObject().getId());
-		_src.send(server.json(mes).get());
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final Map<String, Integer> message = new HashMap<>();
+		message.put(ServerConst.ANS_MY_ID, src.getPlayer().getWrappedObject().getId());
+		src.send(_server.json(message).get());
 		return Command.PROCESSED;
 	}
 }

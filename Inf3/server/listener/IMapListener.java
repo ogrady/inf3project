@@ -4,6 +4,9 @@ import environment.MapCell;
 import environment.entity.Dragon;
 
 public interface IMapListener extends IListener {
-	public void onToggleHuntable(MapCell _cell, boolean _huntable);
-	public void onSpawnDragon(MapCell _cell, Dragon _dragon);
+	default public void onToggleHuntable(MapCell cell, boolean huntable) {
+	};
+
+	default public void onSpawnDragon(MapCell cell, Dragon dragon) {
+	};
 }

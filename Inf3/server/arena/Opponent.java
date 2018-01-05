@@ -2,12 +2,12 @@ package arena;
 
 import java.util.ArrayList;
 
-import server.TcpClient;
-import tokenizer.ITokenizable;
-import util.Const;
 import environment.entity.DragonDecision;
 import environment.entity.SkirmishDecision;
 import environment.entity.StaghuntDecision;
+import server.TcpClient;
+import tokenizer.ITokenizable;
+import util.Const;
 
 /**
  * An {@link Opponent} is a participant in a minigame. It wraps around a
@@ -20,7 +20,7 @@ import environment.entity.StaghuntDecision;
  *            {@link StaghuntDecision}
  */
 public abstract class Opponent<D extends Enum<?>> implements ITokenizable {
-	protected TcpClient player;
+	protected TcpClient _player;
 	protected D decision;
 	protected int pointsLastRound, total;
 
@@ -31,7 +31,7 @@ public abstract class Opponent<D extends Enum<?>> implements ITokenizable {
 	}
 
 	public TcpClient getClient() {
-		return player;
+		return _player;
 	}
 
 	public int getPointsLastRound() {
@@ -45,28 +45,28 @@ public abstract class Opponent<D extends Enum<?>> implements ITokenizable {
 	/**
 	 * Constructor
 	 * 
-	 * @param _player
+	 * @param player
 	 *            player to wrap
 	 */
-	public Opponent(final TcpClient _player) {
-		player = _player;
+	public Opponent(final TcpClient player) {
+		_player = player;
 		decide();
 	}
 
 	/**
 	 * Adds a certain amount of points to the total score
 	 * 
-	 * @param _add
+	 * @param add
 	 *            amount
 	 */
-	public void addPoints(final int _add) {
-		pointsLastRound = _add;
-		total += _add;
+	public void addPoints(final int add) {
+		pointsLastRound = add;
+		total += add;
 	}
 
 	/**
-	 * Checks the current decision of the wrapped player and stores it as result
-	 * for {@link #getLastDecision()}
+	 * Checks the current decision of the wrapped player and stores it as result for
+	 * {@link #getLastDecision()}
 	 */
 	public void decide() {
 		decision = getNewDecision();
@@ -84,9 +84,9 @@ public abstract class Opponent<D extends Enum<?>> implements ITokenizable {
 	 */
 	@Override
 	public ArrayList<String> tokenize() {
-		final ArrayList<String> tokens = new ArrayList<String>();
+		final ArrayList<String> tokens = new ArrayList<>();
 		tokens.add(Const.PAR_BEGIN + Const.PAR_OPPONENT);
-		tokens.add(Const.PAR_ID + player.getPlayer().getWrappedObject().getId());
+		tokens.add(Const.PAR_ID + _player.getPlayer().getWrappedObject().getId());
 		tokens.add(Const.PAR_DECISION + getLastDecision());
 		tokens.add(Const.PAR_POINTS + getPointsLastRound());
 		tokens.add(Const.PAR_TOTAL + getTotalPoints());

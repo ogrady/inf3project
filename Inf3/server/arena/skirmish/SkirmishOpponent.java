@@ -1,17 +1,17 @@
 package arena.skirmish;
 
-import server.TcpClient;
 import arena.Opponent;
 import environment.entity.SkirmishDecision;
+import server.TcpClient;
 
 public class SkirmishOpponent extends Opponent<SkirmishDecision> {
 
-	public SkirmishOpponent(TcpClient _player) {
-		super(_player);
+	public SkirmishOpponent(TcpClient player) {
+		super(player);
 	}
 
 	@Override
 	protected SkirmishDecision getNewDecision() {
-		return player.getPlayer().getWrappedObject().getSkirmishDecision();
+		return _player.getPlayer().getWrappedObject().getSkirmishDecision();
 	}
 }

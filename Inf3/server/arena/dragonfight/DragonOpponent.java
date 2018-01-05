@@ -1,18 +1,18 @@
 package arena.dragonfight;
 
-import server.TcpClient;
 import arena.Opponent;
 import environment.entity.DragonDecision;
+import server.TcpClient;
 
-public class DragonOpponent extends Opponent<DragonDecision>{
+public class DragonOpponent extends Opponent<DragonDecision> {
 
-	public DragonOpponent(TcpClient _player) {
-		super(_player);
+	public DragonOpponent(TcpClient player) {
+		super(player);
 	}
 
 	@Override
 	protected DragonDecision getNewDecision() {
-		return player.getPlayer().getWrappedObject().getDragonDecision();
+		return _player.getPlayer().getWrappedObject().getDragonDecision();
 	}
 
 }

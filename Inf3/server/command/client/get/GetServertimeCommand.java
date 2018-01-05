@@ -1,15 +1,14 @@
 package command.client.get;
 
-import server.TcpClient;
-import server.Server;
-import util.ServerConst;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import command.ClientCommand;
 import command.Command;
+import server.Server;
+import server.TcpClient;
+import util.ServerConst;
 
 public class GetServertimeCommand extends ClientCommand {
 
@@ -18,14 +17,14 @@ public class GetServertimeCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		Map<String,Long> mes = new HashMap<>();
-		mes.put(ServerConst.ANS_TIME, System.currentTimeMillis());
-		
-		Optional<String> json = server.json(mes);
-		if(json.isPresent()) {
-			_src.send(server.json(mes).get());
-			_mes.append("sent servertime to "+_src);
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final Map<String, Long> message = new HashMap<>();
+		message.put(ServerConst.ANS_TIME, System.currentTimeMillis());
+
+		final Optional<String> json = _server.json(message);
+		if (json.isPresent()) {
+			src.send(_server.json(message).get());
+			mes.append("sent servertime to " + src);
 			return Command.PROCESSED;
 		} else {
 			return Command.EXCEPTION;

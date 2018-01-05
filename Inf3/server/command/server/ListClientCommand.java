@@ -17,16 +17,17 @@ public class ListClientCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		String list = "";
 		Socket sock;
-		List<TcpClient> clients = _src.getClients();
-		for(TcpClient cl : clients) {
+		List<TcpClient> clients = src.getClients();
+		for (TcpClient cl : clients) {
 			sock = cl.getSocket();
-			list += String.format("%s:%d - %s\r\n",sock.getInetAddress(), sock.getPort(), cl.getPlayer().getWrappedObject().toString());
+			list += String.format("%s:%d - %s\r\n", sock.getInetAddress(), sock.getPort(),
+					cl.getPlayer().getWrappedObject().toString());
 		}
-		_src.getLogger().print(list, MessageType.INFO);
-		_mes.append(String.format("Succesfully listed %d clients", clients.size()));
+		src.getLogger().print(list, MessageType.INFO);
+		mes.append(String.format("Succesfully listed %d clients", clients.size()));
 		return 1;
 	}
 }

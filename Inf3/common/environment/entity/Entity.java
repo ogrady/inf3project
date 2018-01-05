@@ -2,9 +2,9 @@ package environment.entity;
 
 import java.util.Collection;
 
+import db.Idable;
 import util.SyncedMap;
 import util.Vector2D;
-import db.Idable;
 
 /**
  * {@link Entity} that can stand around on the {@link Map}. Monsters or Players,
@@ -14,12 +14,12 @@ import db.Idable;
  */
 public class Entity implements Idable {
 	// db here
-	public static SyncedMap<Entity> instances = new SyncedMap<Entity>();
+	public static SyncedMap<Entity> instances = new SyncedMap<>();
 	private static Integer nextId = new Integer(0);
-	protected Vector2D position;
-	protected String desc;
-	protected int id = -1;
-	protected boolean busy;
+	protected Vector2D _position;
+	protected String _desc;
+	protected int _id = -1;
+	protected boolean _busy;
 
 	// protected Activator activator;
 
@@ -41,10 +41,10 @@ public class Entity implements Idable {
 	 *            the unique ID
 	 * @return the identified {@link Entity} or <code>null</code>
 	 */
-	public static Entity getEntity(final Integer _id) {
+	public static Entity getEntity(final Integer id) {
 		// return new IdQuery<Entity>(Const.db).getById(_id);
 		// db here
-		return instances.get(_id);
+		return instances.get(id);
 	}
 
 	/**
@@ -54,10 +54,10 @@ public class Entity implements Idable {
 	 *            new id
 	 */
 	@Override
-	public void setId(final int _id) {
-		instances.remove(id);
-		id = _id;
-		instances.put(id, this);
+	public void setId(final int id) {
+		instances.remove(_id);
+		_id = id;
+		instances.put(_id, this);
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class Entity implements Idable {
 	 */
 	@Override
 	public int getId() {
-		return id;
+		return _id;
 	}
 
 	/**
@@ -76,56 +76,54 @@ public class Entity implements Idable {
 	 * @return the current position in the map array, represented by a 2D vector
 	 */
 	public Vector2D getPosition() {
-		return position;
+		return _position;
 	}
 
 	/**
 	 * Set a whole new position
 	 * 
-	 * @param _pos
+	 * @param pos
 	 *            new position
 	 */
-	public void setPosition(final Vector2D _pos) {
-		position = _pos;
+	public void setPosition(final Vector2D pos) {
+		_position = pos;
 	}
 
 	/**
 	 * @return whether the {@link Entity} is currently busy
 	 */
 	public boolean isBusy() {
-		return busy;
+		return _busy;
 	}
 
 	/**
 	 * Set the {@link Entity} busy or not
 	 * 
-	 * @param _isBusy
+	 * @param isBusy
 	 *            new value for busy
 	 */
-	public void setBusy(final boolean _isBusy) {
-		busy = _isBusy;
+	public void setBusy(final boolean isBusy) {
+		_busy = isBusy;
 	}
 
 	/**
 	 * Gets the descriptive String
 	 * 
-	 * @return a descriptive String, such as a name or an entity-description. If
-	 *         the descriptive string is not set, the classname + the unique id
-	 *         is sent
+	 * @return a descriptive String, such as a name or an entity-description. If the
+	 *         descriptive string is not set, the classname + the unique id is sent
 	 */
 	public String getDescription() {
-		return this.desc == null || this.desc.equals("") ? this.getClass()
-				.getSimpleName() + id : desc;
+		return this._desc == null || this._desc.equals("") ? this.getClass().getSimpleName() + _id : _desc;
 	}
 
 	/**
 	 * Gives the {@link Entity} a new descriptive string
 	 * 
-	 * @param desc
+	 * @param _desc
 	 *            new description
 	 */
-	public void setDescription(final String _desc) {
-		desc = _desc;
+	public void setDescription(final String desc) {
+		_desc = desc;
 	}
 
 	/**
@@ -133,7 +131,7 @@ public class Entity implements Idable {
 	 * finalized.
 	 */
 	public void destruct() {
-		Entity.instances.remove(id);
+		Entity.instances.remove(_id);
 		try {
 			finalize();
 		} catch (final Throwable e) {
@@ -142,8 +140,8 @@ public class Entity implements Idable {
 	}
 
 	/**
-	 * Constructor can be called from subclasses which then instantiate
-	 * themselves via parsing
+	 * Constructor can be called from subclasses which then instantiate themselves
+	 * via parsing
 	 */
 	protected Entity() {
 	}
@@ -151,50 +149,47 @@ public class Entity implements Idable {
 	/**
 	 * Constructor
 	 * 
-	 * @param _x
+	 * @param x
 	 *            initial x position in the map array
-	 * @param _y
+	 * @param y
 	 *            initial y position in the map array
-	 * @param _desc
+	 * @param desc
 	 *            description string
 	 */
-	public Entity(final int _x, final int _y, final String _desc) {
+	public Entity(final int x, final int y, final String desc) {
 		synchronized (nextId) {
-			init(nextId++, _x, _y, _desc, false);
+			init(nextId++, x, y, desc, false);
 		}
 	}
 
 	/**
 	 * Constructor
 	 * 
-	 * @param _id
+	 * @param id
 	 *            id for the {@link Entity}
-	 * @param _x
+	 * @param x
 	 *            initial x position in the map array
-	 * @param _y
+	 * @param y
 	 *            initial y position in the map array
-	 * @param _desc
+	 * @param desc
 	 *            description string
 	 * @param whether
 	 *            the entity is currently busy
 	 */
-	public Entity(final int _id, final int _x, final int _y,
-			final String _desc, final boolean _busy) {
-		init(_id, _x, _y, _desc, _busy);
+	public Entity(final int id, final int x, final int y, final String desc, final boolean busy) {
+		init(id, x, y, desc, busy);
 	}
 
-	private void init(final int _id, final int _x, final int _y,
-			final String _desc, final boolean _busy) {
-		setId(_id);
-		setPosition(new Vector2D(_x, _y));
-		setDescription(_desc);
-		setBusy(_busy);
-		Entity.instances.put(_id, this);
+	private void init(final int id, final int x, final int y, final String desc, final boolean busy) {
+		setId(id);
+		setPosition(new Vector2D(x, y));
+		setDescription(desc);
+		setBusy(busy);
+		Entity.instances.put(id, this);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%1$s at %2$s (%3$s)", this.desc, this.position,
-				super.toString());
+		return String.format("%1$s at %2$s (%3$s)", this._desc, this._position, super.toString());
 	}
 }

@@ -9,20 +9,20 @@ import command.Command;
 
 public class AskSetCommand extends ClientCommand {
 
-	public AskSetCommand(Server _server) {
-		super(_server, ServerConst.ASK_SET);
-		addSubcommand(new AskSetDragonCommand(_server));
-		addSubcommand(new AskSetSkirmishCommand(_server));
-		addSubcommand(new AskSetStaghuntCommand(_server));
+	public AskSetCommand(Server server) {
+		super(server, ServerConst.ASK_SET);
+		addSubcommand(new AskSetDragonCommand(server));
+		addSubcommand(new AskSetSkirmishCommand(server));
+		addSubcommand(new AskSetStaghuntCommand(server));
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		int success = executeSubcommands(_src, _cmd, _mes);
-		if(success == Command.PROCESSED) {
-			_src.sendOk();
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		int success = executeSubcommands(src, cmd, mes);
+		if (success == Command.PROCESSED) {
+			src.sendOk();
 		} else {
-			_src.sendNo();
+			src.sendNo();
 		}
 		return success;
 	}

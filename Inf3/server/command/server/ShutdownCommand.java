@@ -12,8 +12,8 @@ public class ShutdownCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
-		_src.stop();
+	protected int routine(Server src, String cmd, StringBuilder mes) {
+		src.stop();
 		return 1;
 	}
 }

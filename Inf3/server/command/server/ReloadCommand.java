@@ -7,7 +7,9 @@ import util.ServerConst;
 import command.ServerCommand;
 
 /**
- * Attempts to reload the serverconfig from the file as specified in {@link Configuration}.
+ * Attempts to reload the serverconfig from the file as specified in
+ * {@link Configuration}.
+ * 
  * @author Daniel
  */
 public class ReloadCommand extends ServerCommand {
@@ -16,14 +18,14 @@ public class ReloadCommand extends ServerCommand {
 	}
 
 	@Override
-	protected int routine(Server _src, String _cmd, StringBuilder _mes) {
+	protected int routine(Server src, String cmd, StringBuilder mes) {
 		boolean success = Configuration.getInstance().load();
 		int result = 1;
-		if(success) {
-			_mes.append("reloaded the server config");
+		if (success) {
+			mes.append("reloaded the server config");
 		} else {
 			result = -1;
-			_mes.append("could not reload the server config");
+			mes.append("could not reload the server config");
 		}
 		return result;
 	}

@@ -1,11 +1,7 @@
 package command.client.get;
 
-import server.TcpClient;
-import server.Server;
-import tokenizer.ITokenizable;
-import util.ServerConst;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import command.ClientCommand;
 import command.Command;
 import environment.entity.Dragon;
@@ -13,6 +9,10 @@ import environment.entity.Entity;
 import environment.entity.Player;
 import environment.wrapper.ServerDragon;
 import environment.wrapper.ServerPlayer;
+import server.Server;
+import server.TcpClient;
+import tokenizer.ITokenizable;
+import util.ServerConst;
 
 public class GetEntityCommand extends ClientCommand {
 
@@ -21,31 +21,27 @@ public class GetEntityCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		int result = Command.PROCESSED;;
-		_src.beginMessage();
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		int result = Command.PROCESSED;
+		;
+		src.beginMessage();
 		try {
-			int id = Integer.parseInt(_cmd);
-			Entity ent = Entity.getEntity(id);
-			if(ent != null) {
+			final int id = Integer.parseInt(cmd);
+			final Entity ent = Entity.getEntity(id);
+			if (ent != null) {
 				ITokenizable tok;
-				if(ent instanceof Player) {
-					tok = new ServerPlayer((Player)ent, server, false);
-				} else {
-					tok = new ServerDragon((Dragon)ent, server, false);
-				}
-				//_src.sendTokenizable(tok);
-				_src.send(server.getObjectMapper().writeValueAsString(tok));
-				_mes.append("sent entity "+id+" to "+_src);
+				tok = ent instanceof Player ? new ServerPlayer((Player) ent, _server, false)
+						: new ServerDragon((Dragon) ent, _server, false);
+				src.send(_server.getObjectMapper().writeValueAsString(tok));
+				mes.append("sent entity " + id + " to " + src);
+			} else {
+				src.send(ServerConst.ANS + ServerConst.ANS_INVALID);
 			}
-			else {
-				_src.send(ServerConst.ANS+ServerConst.ANS_INVALID);
-			}
-		} catch(NumberFormatException | JsonProcessingException nfe) {
-			_src.send(ServerConst.ANS+ServerConst.ANS_INVALID);
+		} catch (NumberFormatException | JsonProcessingException nfe) {
+			src.send(ServerConst.ANS + ServerConst.ANS_INVALID);
 			result = Command.EXCEPTION;
 		} finally {
-			_src.endMessage();
+			src.endMessage();
 		}
 		return result;
 	}

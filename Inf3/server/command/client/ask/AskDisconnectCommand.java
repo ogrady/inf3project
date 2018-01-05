@@ -1,26 +1,26 @@
 package command.client.ask;
 
+import command.ClientCommand;
+import command.Command;
 import output.Logger.MessageType;
-import server.TcpClient;
 import server.Server;
+import server.TcpClient;
 import util.Message;
 import util.ServerConst;
 
-import command.ClientCommand;
-import command.Command;
-
 public class AskDisconnectCommand extends ClientCommand {
 
-	public AskDisconnectCommand(Server _server) {
-		super(_server, ServerConst.ASK_BYE);
+	public AskDisconnectCommand(Server server) {
+		super(server, ServerConst.ASK_BYE);
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		_src.send(ServerConst.ANS+ServerConst.ANS_YES);
-		_src.close();
-		server.broadcast(new Message(-1, ServerConst.SERVER, _src.getPlayer().getWrappedObject().getDescription()+" disconnected"));
-		server.getLogger().println(String.format("Disconnecting %s on own behalf", _src, MessageType.OUTPUT));
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		src.send(ServerConst.ANS + ServerConst.ANS_YES);
+		src.close();
+		_server.broadcast(new Message(-1, ServerConst.SERVER,
+				src.getPlayer().getWrappedObject().getDescription() + " disconnected"));
+		_server.getLogger().println(String.format("Disconnecting %s on own behalf", src, MessageType.OUTPUT));
 		return Command.PROCESSED;
 	}
 }

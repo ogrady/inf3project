@@ -10,13 +10,13 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import environment.MapCell;
+import environment.entity.Player;
+import environment.wrapper.ServerPlayer;
 import output.Logger;
 import output.Logger.MessageType;
 import tokenizer.ITokenizable;
 import util.ServerConst;
-import environment.MapCell;
-import environment.entity.Player;
-import environment.wrapper.ServerPlayer;
 
 /**
  * Handles the communication between the {@link Server} and one Client (in and
@@ -31,23 +31,23 @@ import environment.wrapper.ServerPlayer;
  * @author Daniel
  */
 public class TcpClient implements Runnable {
-	private final Server server;
-	private final Socket socket;
-	private final PrintWriter output;
-	private final BufferedReader input;
-	private final ServerPlayer player;
-	private volatile int nextId;
-	private volatile int mesId;
-	private volatile boolean closed;
+	private final Server _server;
+	private final Socket _socket;
+	private final PrintWriter _output;
+	private final BufferedReader _input;
+	private final ServerPlayer _player;
+	private volatile int _nextId;
+	private volatile int _mesId;
+	private volatile boolean _closed;
 
 	/**
-	 * Check, whether the {@link TcpClient} was already closed. No further
-	 * message should be sent to a closed {@link TcpClient}
+	 * Check, whether the {@link TcpClient} was already closed. No further message
+	 * should be sent to a closed {@link TcpClient}
 	 *
 	 * @return whether the {@link TcpClient} is closed or not
 	 */
 	public boolean isClosed() {
-		return closed;
+		return _closed;
 	}
 
 	/**
@@ -57,21 +57,21 @@ public class TcpClient implements Runnable {
 	 * @return true, if the mes-id <> -1
 	 */
 	public boolean pendingMessage() {
-		return mesId >= 0;
+		return _mesId >= 0;
 	}
 
 	/**
 	 * @return the {@link Player} object for the connection
 	 */
 	public ServerPlayer getPlayer() {
-		return player;
+		return _player;
 	}
 
 	/**
 	 * @return {@link Socket} the client is connected through
 	 */
 	public Socket getSocket() {
-		return socket;
+		return _socket;
 	}
 
 	/**
@@ -84,39 +84,30 @@ public class TcpClient implements Runnable {
 	 * @throws IOException
 	 *             if opening the input or output stream didn't work
 	 */
-	public TcpClient(final Server _server, final Socket _socket)
-			throws IOException {
-		_server.getLogger().println(
-				"Received connection from " + _socket.toString(),
-				MessageType.NOTIFICATION);
-		server = _server;
-		socket = _socket;
-		output = new PrintWriter(new DataOutputStream(socket.getOutputStream()));
-		input = new BufferedReader(new InputStreamReader(new DataInputStream(
-				socket.getInputStream())));
-		final MapCell randomCell = _server.getMap().getWrappedObject()
-				.getRandomWalkableCell();
-		player = new ServerPlayer(new Player(randomCell.getX(),
-				randomCell.getY(), ""), server);
-		mesId = -1;
-		server.addClient(this);
-		server.ready(this);
+	public TcpClient(final Server server, final Socket socket) throws IOException {
+		server.getLogger().println("Received connection from " + socket.toString(), MessageType.NOTIFICATION);
+		_server = server;
+		_socket = socket;
+		_output = new PrintWriter(new DataOutputStream(_socket.getOutputStream()));
+		_input = new BufferedReader(new InputStreamReader(new DataInputStream(_socket.getInputStream())));
+		final MapCell randomCell = _server.getMap().getWrappedObject().getRandomWalkableCell();
+		_player = new ServerPlayer(new Player(randomCell.getX(), randomCell.getY(), ""), _server);
+		_mesId = -1;
+		_server.addClient(this);
+		_server.ready(this);
 	}
 
 	@Override
 	public void run() {
 		try {
 			String line;
-			while ((line = input.readLine()) != null) {
-				server.getLogger().println(
-						socket.getInetAddress() + " sent " + line,
-						MessageType.INPUT);
-				server.processClientCommand(this, line);
+			while ((line = _input.readLine()) != null) {
+				_server.getLogger().println(_socket.getInetAddress() + " sent " + line, MessageType.INPUT);
+				_server.processClientCommand(this, line);
 			}
 		} catch (final IOException e) {
-			server.getLogger().println(
-					String.format("Client disconnected unexpectedly: '%s'",
-							e.getMessage()), MessageType.ERROR);
+			_server.getLogger().println(String.format("Client disconnected unexpectedly: '%s'", e.getMessage()),
+					MessageType.ERROR);
 		} finally {
 			close();
 		}
@@ -126,98 +117,90 @@ public class TcpClient implements Runnable {
 	 * Convenience method to send OK for the last request
 	 */
 	public synchronized void sendOk() {
-		Map<String,String> mes = new HashMap<>();
+		final Map<String, String> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, ServerConst.ANS_YES);
-		send(server.json(mes).get());
+		send(_server.json(mes).get());
 		/*
-		beginMessage();
-		send(ServerConst.ANS + ServerConst.ANS_YES);
-		endMessage();
-		*/
+		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_YES); endMessage();
+		 */
 	}
 
 	/**
 	 * Convenience method to send NO for the last request
 	 */
 	public synchronized void sendNo() {
-		Map<String,String> mes = new HashMap<>();
+		final Map<String, String> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, ServerConst.ANS_NO);
-		send(server.json(mes).get());
+		send(_server.json(mes).get());
 		/*
-		beginMessage();
-		send(ServerConst.ANS + ServerConst.ANS_NO);
-		endMessage();
-		*/
+		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_NO); endMessage();
+		 */
 	}
 
 	/**
-	 * Convenience method to UNKNOWN for the last request. Sends the request
-	 * back to the client and marks it as "unknown" to signalize malformed
-	 * requests
+	 * Convenience method to UNKNOWN for the last request. Sends the request back to
+	 * the client and marks it as "unknown" to signalize malformed requests
 	 *
-	 * @param _req
+	 * @param req
 	 *            original request
 	 */
-	public synchronized void sendUnknown(final String _req) {
-		Map<String,String> mes = new HashMap<>();
+	public synchronized void sendUnknown(final String req) {
+		final Map<String, String> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, ServerConst.ANS_UNKNOWN);
-		send(server.json(mes).get());
+		send(_server.json(mes).get());
 		/*
-		beginMessage();
-		send(ServerConst.ANS + ServerConst.ANS_UNKNOWN + _req);
-		endMessage();
-		*/
+		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_UNKNOWN + _req);
+		 * endMessage();
+		 */
 	}
 
 	/**
 	 * Convenience method to send INVALID for the last request
 	 */
 	public synchronized void sendInvalid() {
-		Map<String,String> mes = new HashMap<>();
+		final Map<String, String> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, ServerConst.ANS_INVALID);
-		send(server.json(mes).get());
+		send(_server.json(mes).get());
 		/*
-		beginMessage();
-		send(ServerConst.ANS + ServerConst.ANS_INVALID);
-		endMessage();
-		*/
+		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_INVALID);
+		 * endMessage();
+		 */
 	}
 
 	/**
 	 * Send a line of text directly to the Client (unbuffered)
 	 *
-	 * @param _mes
+	 * @param mes
 	 *            message to send
 	 */
-	public synchronized void send(final String _mes) {
-		if (!closed) {
-			output.write(_mes + "\r\n");
-			output.flush();
+	public synchronized void send(final String mes) {
+		if (!_closed) {
+			_output.write(mes + "\r\n");
+			_output.flush();
 		}
 	}
 
 	/**
-	 * Sends an {@link ITokenizable} by sending its tokenized version line by
-	 * line
+	 * Sends an {@link ITokenizable} by sending its tokenized version line by line
 	 *
-	 * @param _tok
+	 * @param tok
 	 *            {@link ITokenizable} to send
 	 */
-	public synchronized void sendTokenizable(final ITokenizable _tok) {
-		for (final String t : _tok.tokenize()) {
+	public synchronized void sendTokenizable(final ITokenizable tok) {
+		for (final String t : tok.tokenize()) {
 			send(t);
 		}
 	}
 
 	/**
-	 * Starts the next message. Makes the {@link TcpClient} send the next
-	 * available id and remember that id. Each message should then be ended with
-	 * a call of {@link #endMessage()}
+	 * Starts the next message. Makes the {@link TcpClient} send the next available
+	 * id and remember that id. Each message should then be ended with a call of
+	 * {@link #endMessage()}
 	 */
 	public synchronized void beginMessage() {
-		if (mesId == -1) {
-			mesId = nextId++;
-			send(ServerConst.BEGIN + mesId);
+		if (_mesId == -1) {
+			_mesId = _nextId++;
+			send(ServerConst.BEGIN + _mesId);
 		}
 	}
 
@@ -227,8 +210,8 @@ public class TcpClient implements Runnable {
 	 * setting it to -1 (= no message pending)
 	 */
 	public synchronized void endMessage() {
-		send(ServerConst.END + this.mesId);
-		mesId = -1;
+		send(ServerConst.END + this._mesId);
+		_mesId = -1;
 	}
 
 	/**
@@ -244,25 +227,24 @@ public class TcpClient implements Runnable {
 	}
 
 	/**
-	 * Closes the connection (and all streams) to the Client and deletes self
-	 * from list of {@link TcpClient}s in the {@link Server}.
+	 * Closes the connection (and all streams) to the Client and deletes self from
+	 * list of {@link TcpClient}s in the {@link Server}.
 	 */
 	public synchronized void close() {
-		if (!closed) {
+		if (!_closed) {
 			try {
-				closed = true;
-				server.getLogger().println(
-						"Closing connection to " + this.socket.toString(),
+				_closed = true;
+				_server.getLogger().println("Closing connection to " + this._socket.toString(),
 						MessageType.NOTIFICATION);
-				server.removeClient(this);
-				server.terminate(this);
-				player.destruct();
-				output.close();
-				input.close();
-				socket.close();
+				_server.removeClient(this);
+				_server.terminate(this);
+				_player.destruct();
+				_output.close();
+				_input.close();
+				_socket.close();
 			} catch (final IOException e) {
-				closed = false;
-				final Logger log = server.getLogger();
+				_closed = false;
+				final Logger log = _server.getLogger();
 				log.println("Error while closing " + this, MessageType.ERROR);
 				log.printException(e);
 			}
@@ -271,6 +253,6 @@ public class TcpClient implements Runnable {
 
 	@Override
 	public String toString() {
-		return socket.getInetAddress() + ":" + this.socket.getPort();
+		return _socket.getInetAddress() + ":" + this._socket.getPort();
 	}
 }

@@ -5,15 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import server.TcpClient;
-import server.Server;
-import util.ServerConst;
-
 import command.ClientCommand;
 import command.Command;
 import environment.wrapper.ServerPlayer;
+import server.Server;
+import server.TcpClient;
+import util.ServerConst;
 
 public class GetUsersCommand extends ClientCommand {
 
@@ -22,17 +19,17 @@ public class GetUsersCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		List<ServerPlayer> players = new ArrayList<>();
-		Iterator<TcpClient> it = server.getClients().iterator();
-		while(it.hasNext()) {
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final List<ServerPlayer> players = new ArrayList<>();
+		final Iterator<TcpClient> it = _server.getClients().iterator();
+		while (it.hasNext()) {
 			players.add(it.next().getPlayer());
 		}
-		
-		Optional<String> json = server.json(players);
-		if(json.isPresent()) {
-			_src.send(json.get());
-			_mes.append("sent all users to "+_src);
+
+		final Optional<String> json = _server.json(players);
+		if (json.isPresent()) {
+			src.send(json.get());
+			mes.append("sent all users to " + src);
 			return Command.PROCESSED;
 		} else {
 			return Command.EXCEPTION;

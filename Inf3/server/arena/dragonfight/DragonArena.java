@@ -15,10 +15,10 @@ public class DragonArena extends Arena<DragonOpponent> {
 	};
 	private final ServerDragon dragon;
 
-	public DragonArena(final Server _server, final TcpClient _cl1,
-			final TcpClient _cl2, final ServerDragon _dr, final int _rounds) {
-		super(_server, _cl1, _cl2, _rounds);
-		dragon = _dr;
+	public DragonArena(final Server server, final TcpClient cl1, final TcpClient cl2, final ServerDragon dr,
+			final int _rounds) {
+		super(server, cl1, cl2, _rounds);
+		dragon = dr;
 		if (dragon != null) {
 			dragon.setBusy(true);
 		}
@@ -33,8 +33,8 @@ public class DragonArena extends Arena<DragonOpponent> {
 	}
 
 	@Override
-	protected DragonOpponent wrap(final TcpClient _cl) {
-		return new DragonOpponent(_cl);
+	protected DragonOpponent wrap(final TcpClient cl) {
+		return new DragonOpponent(cl);
 	}
 
 	@Override
@@ -43,14 +43,10 @@ public class DragonArena extends Arena<DragonOpponent> {
 		// not be busy and the dragon can not be null. A null-dragon can occur,
 		// when no un-busy dragon was found on the cell, the first player
 		// challenged the second player on.
-		final Player p1 = player1.getClient().getPlayer().getWrappedObject();
-		final Player p2 = player2.getClient().getPlayer().getWrappedObject();
-		return !p1.isBusy()
-				&& !p2.isBusy()
-				&& dragon != null
-				&& p1.getPosition().equals(p2.getPosition())
-				&& p1.getPosition().equals(
-						dragon.getWrappedObject().getPosition());
+		final Player p1 = _player1.getClient().getPlayer().getWrappedObject();
+		final Player p2 = _player2.getClient().getPlayer().getWrappedObject();
+		return !p1.isBusy() && !p2.isBusy() && dragon != null && p1.getPosition().equals(p2.getPosition())
+				&& p1.getPosition().equals(dragon.getWrappedObject().getPosition());
 	}
 
 	@Override

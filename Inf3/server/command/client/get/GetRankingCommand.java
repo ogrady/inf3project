@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import server.TcpClient;
-import server.Server;
-import util.Const;
-import util.ServerConst;
 import command.ClientCommand;
 import command.Command;
 import environment.entity.Player;
+import server.Server;
+import server.TcpClient;
+import util.Const;
+import util.ServerConst;
 
 public class GetRankingCommand extends ClientCommand {
 
@@ -20,16 +20,14 @@ public class GetRankingCommand extends ClientCommand {
 	}
 
 	@Override
-	protected int routine(TcpClient _src, String _cmd, StringBuilder _mes) {
-		List<Player> players = server.getClients().stream()
-				.map(c -> c.getPlayer().getWrappedObject())
-				.sorted((Player p1, Player p2) -> p2.getPoints() - p1.getPoints())
-				.collect(Collectors.toList());
-				
-		Map<String, List<Player>> ranking = new HashMap<>();
+	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
+		final List<Player> players = _server.getClients().stream().map(c -> c.getPlayer().getWrappedObject())
+				.sorted((Player p1, Player p2) -> p2.getPoints() - p1.getPoints()).collect(Collectors.toList());
+
+		final Map<String, List<Player>> ranking = new HashMap<>();
 		ranking.put(Const.PAR_RANKING, players);
-		_src.send(server.json(ranking).get());
-		_mes.append("sent ranking to " + _src);
+		src.send(_server.json(ranking).get());
+		mes.append("sent ranking to " + src);
 		return Command.PROCESSED;
 	}
 }
