@@ -2,6 +2,10 @@ package environment.entity;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import db.Idable;
 import util.SyncedMap;
 import util.Vector2D;
@@ -12,6 +16,10 @@ import util.Vector2D;
  * 
  * @author Daniel
  */
+
+// @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include =
+// JsonTypeInfo.As.PROPERTY, property = "type")
+// @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "exercise_type", visible = true)
 public class Entity implements Idable {
 	// db here
 	public static SyncedMap<Entity> instances = new SyncedMap<>();
@@ -45,6 +53,13 @@ public class Entity implements Idable {
 		// return new IdQuery<Entity>(Const.db).getById(_id);
 		// db here
 		return instances.get(id);
+	}
+	
+	/**
+	 * @return the type of this entity, which is just the most concrete classname. This is required to include the entity type in JSON
+	 */
+	public String getType() {
+		return getClass().getSimpleName();
 	}
 
 	/**

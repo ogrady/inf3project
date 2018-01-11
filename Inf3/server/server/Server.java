@@ -397,37 +397,35 @@ public class Server implements IListenable<IServerListener>, IMapListener, IDrag
 	 *
 	 * @param _tok
 	 *            {@link ITokenizable} object
-	 * @param _type
+	 * @param type
 	 *            surrounding tag if any. This allows us to send typed messages,
 	 *            such as updates
 	 * @throws Exception
 	 */
-	@Deprecated
-	public synchronized void broadcast(final ITokenizable _tok, final String _type) throws Exception {
-		if (true) {
-			throw new Exception("Don't use this method");
-		} /*
-			 * TcpClient client; final Iterator<TcpClient> it = clients.iterator(); while
-			 * (it.hasNext()) { client = it.next(); if (!client.isClosed()) {
-			 * client.beginMessage(); client.send(ServerConst.BEGIN + _type);
-			 * client.sendTokenizable(_tok); client.send(ServerConst.END + _type);
-			 * client.endMessage();
-			 * 
-			 * }
-			 * 
-			 * }
-			 */
-	}
+
+	/*
+	 * @Deprecated public synchronized void broadcast(final ITokenizable _tok, final
+	 * String _type) throws Exception { if (true) { throw new
+	 * Exception("Don't use this method"); } /* TcpClient client; final
+	 * Iterator<TcpClient> it = clients.iterator(); while (it.hasNext()) { client =
+	 * it.next(); if (!client.isClosed()) { client.beginMessage();
+	 * client.send(ServerConst.BEGIN + _type); client.sendTokenizable(_tok);
+	 * client.send(ServerConst.END + _type); client.endMessage();
+	 * 
+	 * }
+	 * 
+	 * }
+	 */
 
 	// FIXME: replace above version with this one
-	public synchronized void broadcast(Object o, final String _type) {
+	public synchronized void broadcast(Object o, final String type) {
 		TcpClient client;
 		final Iterator<TcpClient> it = _clients.iterator();
 		while (it.hasNext()) {
 			client = it.next();
 			if (!client.isClosed()) {
 				final Map<String, Object> mes = new HashMap<>();
-				mes.put(_type, o);
+				mes.put(type, o);
 				client.send(json(mes).get());
 			}
 		}

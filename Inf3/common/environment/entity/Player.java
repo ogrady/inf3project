@@ -12,7 +12,11 @@ import util.SyncedMap;
  * @author Daniel
  *
  */
-// FIXME: updates send minigame decisions with them
+
+// @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include =
+// JsonTypeInfo.As.PROPERTY, property = "type")
+// @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS, include =
+// JsonTypeInfo.As.PROPERTY, property = "type", visible = true)
 final public class Player extends Entity {
 	// db here
 	public static SyncedMap<Player> instances = new SyncedMap<>();
@@ -27,6 +31,7 @@ final public class Player extends Entity {
 	/**
 	 * @return current decision for the staghunt-game
 	 */
+	@JsonIgnore
 	public StaghuntDecision getStaghuntDecision() {
 		return _staghuntDecision;
 	}
@@ -43,6 +48,7 @@ final public class Player extends Entity {
 	/**
 	 * @return current decision for the dragonfight-game
 	 */
+	@JsonIgnore
 	public DragonDecision getDragonDecision() {
 		return _dragonDecision;
 	}
@@ -59,6 +65,7 @@ final public class Player extends Entity {
 	/**
 	 * @return current decision for the player-vs-player-game
 	 */
+	@JsonIgnore
 	public SkirmishDecision getSkirmishDecision() {
 		return _skirmishDecision;
 	}

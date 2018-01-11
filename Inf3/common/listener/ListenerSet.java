@@ -2,6 +2,7 @@ package listener;
 
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 public class ListenerSet<L extends IListener> extends CopyOnWriteArrayList<L> {
 	private static final long serialVersionUID = 1L;
@@ -18,6 +19,13 @@ public class ListenerSet<L extends IListener> extends CopyOnWriteArrayList<L> {
 
 	public void unregisterAll() {
 		this.clear();
+	}
+	
+	public void alert(Consumer<L> consumer) {
+		Iterator<L> it = this.iterator();
+		while (it.hasNext()) {
+			consumer.accept(it.next());
+		}
 	}
 
 	public void notify(INotifier<L> notificator) {

@@ -16,6 +16,7 @@ import environment.wrapper.ServerPlayer;
 import output.Logger;
 import output.Logger.MessageType;
 import tokenizer.ITokenizable;
+import util.Answer;
 import util.ServerConst;
 
 /**
@@ -117,20 +118,17 @@ public class TcpClient implements Runnable {
 	 * Convenience method to send OK for the last request
 	 */
 	public synchronized void sendOk() {
-		final Map<String, String> mes = new HashMap<>();
-		mes.put(ServerConst.ANS, ServerConst.ANS_YES);
+		final Map<String, Answer> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, Answer.OK);
 		send(_server.json(mes).get());
-		/*
-		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_YES); endMessage();
-		 */
 	}
 
 	/**
 	 * Convenience method to send NO for the last request
 	 */
 	public synchronized void sendNo() {
-		final Map<String, String> mes = new HashMap<>();
-		mes.put(ServerConst.ANS, ServerConst.ANS_NO);
+		final Map<String, Answer> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, Answer.NO);
 		send(_server.json(mes).get());
 		/*
 		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_NO); endMessage();
@@ -145,8 +143,8 @@ public class TcpClient implements Runnable {
 	 *            original request
 	 */
 	public synchronized void sendUnknown(final String req) {
-		final Map<String, String> mes = new HashMap<>();
-		mes.put(ServerConst.ANS, ServerConst.ANS_UNKNOWN);
+		final Map<String, Answer> mes = new HashMap<>();
+		mes.put(ServerConst.ANS, Answer.UNK);
 		send(_server.json(mes).get());
 		/*
 		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_UNKNOWN + _req);

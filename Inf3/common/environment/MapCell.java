@@ -4,8 +4,8 @@ import java.util.Vector;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import util.Bitmask;
 import environment.entity.Entity;
+import util.Bitmask;
 
 /**
  * {@link MapCell} of which a {@link ServerMap} consists.
@@ -31,6 +31,10 @@ public class MapCell {
 
 	public int getY() {
 		return this._y;
+	}
+
+	public String getType() {
+		return getClass().getSimpleName();
 	}
 
 	@JsonIgnore
@@ -73,7 +77,7 @@ public class MapCell {
 	 */
 	@JsonIgnore
 	public MapCell[] getNeighbours() {
-		MapCell[] n = new MapCell[4];
+		final MapCell[] n = new MapCell[4];
 		if (_map != null) {
 			n[0] = _map.getCellAt(this._x - 1, this._y);
 			n[1] = _map.getCellAt(this._x, this._y - 1);
@@ -84,8 +88,8 @@ public class MapCell {
 	}
 
 	protected MapCell() {
-		this._entities = new Vector<Entity>();
-		this._properties = new Vector<Property>();
+		this._entities = new Vector<>();
+		this._properties = new Vector<>();
 		this._propertyMap = new Bitmask();
 	}
 
@@ -151,7 +155,7 @@ public class MapCell {
 	 */
 	public void addProperties(Property[] p) {
 		if (p != null) {
-			for (Property prop : p) {
+			for (final Property prop : p) {
 				addProperty(prop);
 			}
 		}
@@ -165,7 +169,7 @@ public class MapCell {
 	 * @return true, if the value was removed, false, if it wasn't in the list
 	 */
 	public boolean removeProperty(Property p) {
-		boolean removed = _properties.remove(p);
+		final boolean removed = _properties.remove(p);
 		if (removed) {
 			_propertyMap.remove(p.getValue());
 		}

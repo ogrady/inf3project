@@ -12,9 +12,9 @@ import tokenizer.MessageTokenizer;
  */
 public class Message implements ITokenizable {
 	private static final MessageTokenizer tokenizer = new MessageTokenizer();
-	private int senderid;
-	private String sender;
-	private String text;
+	private final int senderid;
+	private final String sender;
+	private final String text;
 
 	public int getSenderid() {
 		return senderid;
