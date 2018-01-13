@@ -23,7 +23,7 @@ import exception.MapException;
 public class Map {
 	protected static HashMap<Color, Property[]> colormap;
 	static {
-		colormap = new HashMap<Color, Property[]>();
+		colormap = new HashMap<>();
 		colormap.put(Color.WHITE, new Property[] { Property.WALKABLE });
 		colormap.put(Color.BLACK, new Property[] { Property.WALL });
 		colormap.put(Color.BLUE, new Property[] { Property.WATER });
@@ -42,8 +42,11 @@ public class Map {
 	 * 
 	 * @return the grid of {@link MapCell}s
 	 */
-	public List<List<MapCell>> getCells() {
-		return this._cells;
+	// public List<List<MapCell>> getCells() {
+	public List<MapCell> getCells() {
+		final List<MapCell> flatCells = new ArrayList<>();
+		_cells.forEach(flatCells::addAll);
+		return flatCells;
 	}
 
 	/**
@@ -145,7 +148,7 @@ public class Map {
 	 */
 	@JsonIgnore
 	public MapCell getRandomWalkableCell() {
-		Random rand = new Random();
+		final Random rand = new Random();
 		int x, y;
 		do {
 			x = rand.nextInt(this.getWidth());
@@ -178,15 +181,15 @@ public class Map {
 			throw new MapException(
 					String.format("Could not create map from directory '%s'", _bitmapFile.getAbsolutePath()));
 		}
-		int index = _bitmapFile.getName().lastIndexOf('.');
+		final int index = _bitmapFile.getName().lastIndexOf('.');
 		if (index <= 0 || !_bitmapFile.getName().substring(index + 1).equals("bmp")) {
 			throw new MapException(
 					String.format("Could not create map from non-bmp '%s'", _bitmapFile.getAbsolutePath()));
 		}
 		try {
-			BufferedImage bitmap = ImageIO.read(_bitmapFile);
-			int width = bitmap.getData().getWidth();
-			int height = bitmap.getData().getHeight();
+			final BufferedImage bitmap = ImageIO.read(_bitmapFile);
+			final int width = bitmap.getData().getWidth();
+			final int height = bitmap.getData().getHeight();
 			this.init(width, height);
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
@@ -194,7 +197,7 @@ public class Map {
 				}
 			}
 			bitmap.flush();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -209,12 +212,12 @@ public class Map {
 	 *            height of the array
 	 */
 	private void init(int width, int height) {
-		this._huntables = new ArrayList<MapCell>();
+		this._huntables = new ArrayList<>();
 		this.width = width;
 		this.height = height;
 		this._cells = new ArrayList<>(width);
 		for (int i = 0; i < width; i++) {
-			ArrayList<MapCell> row = new ArrayList<>(height);
+			final ArrayList<MapCell> row = new ArrayList<>(height);
 			for (int j = 0; j < height; j++) {
 				row.add(new MapCell(this, i, j));
 			}
