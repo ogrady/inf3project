@@ -2,6 +2,8 @@ package arena;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import environment.entity.DragonDecision;
 import environment.entity.SkirmishDecision;
 import environment.entity.StaghuntDecision;
@@ -20,16 +22,19 @@ import util.Const;
  *            {@link StaghuntDecision}
  */
 public abstract class Opponent<D extends Enum<?>> implements ITokenizable {
+	@JsonIgnore
 	protected TcpClient _player;
 	protected D decision;
 	protected int pointsLastRound, total;
 
+	@JsonIgnore
 	abstract protected D getNewDecision();
 
 	public D getLastDecision() {
 		return decision;
 	}
 
+	@JsonIgnore
 	public TcpClient getClient() {
 		return _player;
 	}

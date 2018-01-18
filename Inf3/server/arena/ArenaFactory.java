@@ -3,6 +3,7 @@ package arena;
 import server.TcpClient;
 import server.Server;
 import util.Challenge;
+import util.Const;
 import arena.skirmish.SkirmishArena;
 
 import command.client.ask.challenge.AskSkirmishChallengeCommand;
@@ -106,7 +107,7 @@ abstract public class ArenaFactory {
 					// %s",opponent.getPlayer().getWrappedObject().getDescription())));
 					// opponent.flushTokenizable(new ServerMessage(String.format("%s has accepted
 					// your challenge",_src.getPlayer().getWrappedObject().getDescription())));
-					opponent.flushTokenizable(generateChallenge(src.getPlayer().getWrappedObject().getId(), true));
+					opponent.send(server.json(Const.PAR_CHALLENGE, generateChallenge(src.getPlayer().getWrappedObject().getId(), true)).get());
 					arena.enter(src);
 					// create a new arena and invite the opponent to it
 				} else {
@@ -115,7 +116,7 @@ abstract public class ArenaFactory {
 					// %s",opponent.getPlayer().getWrappedObject().getDescription())));
 					// opponent.flushTokenizable(new ServerMessage(String.format("%s challenged
 					// you",_src.getPlayer().getWrappedObject().getDescription())));
-					opponent.flushTokenizable(generateChallenge(src.getPlayer().getWrappedObject().getId(), false));
+					opponent.send(server.json(Const.PAR_CHALLENGE, generateChallenge(src.getPlayer().getWrappedObject().getId(), false)).get());
 				}
 				src.sendOk();
 				result = 1;

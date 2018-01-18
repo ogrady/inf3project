@@ -218,6 +218,7 @@ public class TcpClient implements Runnable {
 	 * @param _tok
 	 *            {@link ITokenizable} to send
 	 */
+	@Deprecated
 	public synchronized void flushTokenizable(final ITokenizable _tok) {
 		beginMessage();
 		sendTokenizable(_tok);

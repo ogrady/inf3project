@@ -2,10 +2,6 @@ package environment.entity;
 
 import java.util.Collection;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-
 import db.Idable;
 import util.SyncedMap;
 import util.Vector2D;

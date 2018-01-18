@@ -1,10 +1,5 @@
 package util;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import tokenizer.ITokenizable;
-
 /**
  * Challenges are generated to challenge a player to a certain minigame
  * (implicated by {@link #_accepted} == false) or to accept the challenge of
@@ -14,7 +9,7 @@ import tokenizer.ITokenizable;
  * @author Daniel
  *
  */
-public class Challenge implements ITokenizable {
+public class Challenge {
 	private final int _challengerId;
 	private final String _type;
 	private final boolean _accepted;
@@ -46,19 +41,5 @@ public class Challenge implements ITokenizable {
 		_challengerId = challengerId;
 		_type = type;
 		_accepted = accepted;
-	}
-
-	/**
-	 * begin:chal id:NR type:STRING accepted:BOOLEAN end:chal
-	 */
-	@Override
-	public List<String> tokenize() {
-		final ArrayList<String> tokens = new ArrayList<>();
-		tokens.add(Const.PAR_BEGIN + Const.PAR_CHALLENGE);
-		tokens.add(Const.PAR_ID + _challengerId);
-		tokens.add(Const.PAR_TYPE + _type);
-		tokens.add(Const.PAR_ACCEPTED + _accepted);
-		tokens.add(Const.PAR_END + Const.PAR_CHALLENGE);
-		return tokens;
 	}
 }

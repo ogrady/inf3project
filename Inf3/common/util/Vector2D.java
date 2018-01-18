@@ -30,6 +30,10 @@ public class Vector2D {
 		x = _other.x;
 		y = _other.y;
 	}
+	
+	public double distance(Vector2D other) {
+		return Math.sqrt(Math.pow(other.x - x, 2) + Math.pow(other.y - y, 2));
+	}
 
 	/**
 	 * Equal when positions are the same

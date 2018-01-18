@@ -2,6 +2,8 @@ package arena;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import arena.dragonfight.DragonArena;
 import arena.dragonfight.DragonOpponent;
 import environment.wrapper.ServerPlayer;
@@ -10,8 +12,6 @@ import server.Server;
 import server.TcpClient;
 import tokenizer.ITokenizable;
 import util.Configuration;
-import util.Const;
-import util.ServerConst;
 import util.ServerMessage;
 
 /**
@@ -34,20 +34,31 @@ import util.ServerMessage;
  * @param <T>
  *            {@link Opponent}s that can compete in this {@link Arena}
  */
-public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokenizable, IPlayerListener {
+public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerListener {
 	protected T _player1, _player2;
-	protected int _rounds, _curRound;
+	@JsonIgnore
+	protected int _rounds;
+	protected int _curRound;
 	protected boolean _running;
+	@JsonIgnore
 	protected boolean _destructed;
+	@JsonIgnore
 	protected Thread _thread;
+	@JsonIgnore
 	protected Server _server;
 
+	@JsonIgnore
 	public T getChallenger() {
 		return _player1;
 	}
 
+	@JsonIgnore
 	public T getChallenged() {
 		return _player2;
+	}
+	
+	public long getDelay() {
+		return Configuration.getInstance().getLong(Configuration.MINIGAME_ROUND_DELAY);
 	}
 
 	/**
@@ -93,8 +104,8 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokeniz
 		_player2.getClient().getPlayer().setBusy(false);
 		_player1.getClient().getPlayer().getListeners().unregisterListener(this);
 		_player2.getClient().getPlayer().getListeners().unregisterListener(this);
-		_player1.getClient().flushTokenizable(new ServerMessage("game has ended"));
-		_player2.getClient().flushTokenizable(new ServerMessage("game has ended"));
+		_player1.getClient().send(_server.json(new ServerMessage("game has ended")).get());
+		_player2.getClient().send(_server.json(new ServerMessage("game has ended")).get());
 		_player1.getClient().getPlayer().setArena(null);
 		_player2.getClient().getPlayer().setArena(null);
 		_player1 = null;
@@ -129,10 +140,9 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokeniz
 			_player2.getClient().getPlayer().getListeners().registerListener(this);
 			_player1.getClient().getPlayer().setBusy(true);
 			_player2.getClient().getPlayer().setBusy(true);
-			// while (running && curRound < rounds) {
 			while (isRunning()) {
 				try {
-					Thread.sleep(Configuration.getInstance().getLong(Configuration.MINIGAME_ROUND_DELAY));
+					Thread.sleep(getDelay());
 					doRound();
 					sendResult();
 				} catch (final Exception e) {
@@ -148,12 +158,12 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokeniz
 	 * Sends the result of one round to both players (see {@link #tokenize()}).
 	 */
 	protected void sendResult() {
-		_player1.getClient().flushTokenizable(this);
-		_player2.getClient().flushTokenizable(this);
-		_player1.getClient().flushTokenizable(new ServerMessage(String
-				.format("At the end of round %d you have a total of %d points", _curRound, _player1.getTotalPoints())));
-		_player2.getClient().flushTokenizable(new ServerMessage(String
-				.format("At the end of round %d you have a total of %d points", _curRound, _player2.getTotalPoints())));
+		_player1.getClient().send(_server.json(this).get());
+		_player2.getClient().send(_server.json(this).get());
+		_player1.getClient().send(_server.json(new ServerMessage(String
+				.format("At the end of round %d you have a total of %d points", _curRound, _player1.getTotalPoints()))).get());
+		_player2.getClient().send(_server.json(new ServerMessage(String
+				.format("At the end of round %d you have a total of %d points", _curRound, _player2.getTotalPoints()))).get());
 	}
 
 	/**
@@ -166,36 +176,6 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokeniz
 		_player2.decide();
 		_player1.addPoints(getPoints(_player1, _player2));
 		_player2.addPoints(getPoints(_player2, _player1));
-	}
-
-	/**
-	 * <pre>
-	 * begin:result
-	 *   rnd:NR
-	 *   running:BOOL
-	 *   delay:NR
-	 *   begin:players
-	 *     {@link Opponent#tokenize()}
-	 *     {@link Opponent#tokenize()}
-	 *   end:players
-	 * end:result
-	 * </pre>
-	 */
-	@Override
-	public ArrayList<String> tokenize() {
-		final ArrayList<String> tokens = new ArrayList<>();
-		tokens.add(ServerConst.BEGIN + Const.PAR_RESULT);
-		tokens.add(Const.PAR_ROUND + _curRound);
-		// -1 to do "foresight" whether this is the last round =
-		// "will the game be running for another round after this round?"
-		tokens.add(Const.PAR_RUNNING + (_running && _curRound < _rounds - 1));
-		tokens.add(Const.PAR_DELAY + Configuration.getInstance().getInteger(Configuration.MINIGAME_ROUND_DELAY));
-		tokens.add(ServerConst.BEGIN + Const.PAR_OPPONENTS);
-		tokens.addAll(_player1.tokenize());
-		tokens.addAll(_player2.tokenize());
-		tokens.add(ServerConst.END + Const.PAR_OPPONENTS);
-		tokens.add(ServerConst.END + Const.PAR_RESULT);
-		return tokens;
 	}
 
 	@Override
@@ -247,7 +227,7 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, ITokeniz
 	 * Checks whether the prerequisites for starting the game are met. Otherwise the
 	 * game will be canceled.
 	 *
-	 * @return true, if all prerequisites are met
+	 * @return true, if all prerequisites are met	
 	 */
 	abstract protected boolean prerequisites();
 

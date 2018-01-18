@@ -218,6 +218,12 @@ public class Server implements IListenable<IServerListener>, IMapListener, IDrag
 			return Optional.empty();
 		}
 	}
+	
+	public Optional<String> json(String label, Object o) {
+		Map<String, Object> map = new HashMap<>();
+		map.put(label, o);
+		return json(map);
+	}
 
 	/**
 	 * Starts the server and waits for incoming clients
