@@ -5,7 +5,7 @@ public class Const {
 	public static final String
 	// entity
 	PAR_BEGIN = "begin:", PAR_END = "end:", PAR_ID = "id:", PAR_BUSY = "busy:", PAR_TYPE = "type:",
-			PAR_DESCRIPTION = "desc:", PAR_XPOS = "x:", PAR_YPOS = "y:", PAR_ENTITY = "entity", PAR_ONLINE = "online",
+			PAR_DESCRIPTION = "desc:", PAR_XPOS = "x:", PAR_YPOS = "y:", PAR_ENTITY = "entity", PAR_ENTITIES = "entities", PAR_ONLINE = "online",
 			PAR_TIME = "time", PAR_YOURID = "yourid", PAR_ANS = "ans:", PAR_OK = "ok", PAR_NO = "no",
 			PAR_UNKNOWN = "unknown", PAR_INVALID = "invalid", PAR_RANKING = "ranking",
 			// server

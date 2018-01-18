@@ -24,6 +24,7 @@ public class GetAllEntitesCommand extends ClientCommand {
 	@Override
 	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
 		final int cnt = ServerPlayer.instances.size() + ServerDragon.instances.size();
+		final Map<String, Map<String, List<Entity>>> outer = new HashMap<>();
 		final Map<String, List<Entity>> entities = new HashMap<>();
 
 		entities.put(Const.PAR_PLAYERS,
@@ -31,7 +32,8 @@ public class GetAllEntitesCommand extends ClientCommand {
 
 		entities.put(Const.PAR_DRAGONS,
 				ServerDragon.instances.values().stream().map(e -> e.getWrappedObject()).collect(Collectors.toList()));
-		src.send(_server.json(entities).get());
+		outer.put(Const.PAR_ENTITIES, entities);
+		src.send(_server.json(outer).get());
 		mes.append(String.format("sent %d entities to %s", cnt, src.toString()));
 		return Command.PROCESSED;
 	}
