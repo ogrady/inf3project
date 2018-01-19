@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import server.TcpClient;
 import server.Server;
+import util.Const;
 import util.ServerConst;
 import util.ServerMessage;
 
@@ -29,7 +30,7 @@ public class KickNameCommand extends ServerCommand {
 		if (client != null) {
 			result = 1;
 			mes.append(String.format(String.format("Sucessfully kicked '%s'\r\n", cmd)));
-			client.flushTokenizable(new ServerMessage("you were kicked from the server"));
+			client.send(src.json(Const.PAR_MESSAGE, new ServerMessage("you were kicked from the server")).get());
 			client.close();
 		} else {
 			result = -1;

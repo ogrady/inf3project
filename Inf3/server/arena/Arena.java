@@ -1,8 +1,14 @@
 package arena;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import arena.dragonfight.DragonArena;
 import arena.dragonfight.DragonOpponent;
@@ -10,8 +16,8 @@ import environment.wrapper.ServerPlayer;
 import listener.IPlayerListener;
 import server.Server;
 import server.TcpClient;
-import tokenizer.ITokenizable;
 import util.Configuration;
+import util.Const;
 import util.ServerMessage;
 
 /**
@@ -35,7 +41,10 @@ import util.ServerMessage;
  *            {@link Opponent}s that can compete in this {@link Arena}
  */
 public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerListener {
-	protected T _player1, _player2;
+	@JsonIgnore
+	protected T _player1;
+	@JsonIgnore
+	protected T _player2;
 	@JsonIgnore
 	protected int _rounds;
 	protected int _curRound;
@@ -46,13 +55,16 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerL
 	protected Thread _thread;
 	@JsonIgnore
 	protected Server _server;
-
+	
 	@JsonIgnore
+	private List<T> getPlayers() {
+		return Arrays.asList(getChallenger(), getChallenged());
+	}
+
 	public T getChallenger() {
 		return _player1;
 	}
-
-	@JsonIgnore
+	
 	public T getChallenged() {
 		return _player2;
 	}
@@ -98,16 +110,12 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerL
 	 */
 	protected void destruct() {
 		_running = false;
-		_player1.getClient().getPlayer().addPoints(_player1.getTotalPoints());
-		_player2.getClient().getPlayer().addPoints(_player2.getTotalPoints());
-		_player1.getClient().getPlayer().setBusy(false);
-		_player2.getClient().getPlayer().setBusy(false);
-		_player1.getClient().getPlayer().getListeners().unregisterListener(this);
-		_player2.getClient().getPlayer().getListeners().unregisterListener(this);
-		_player1.getClient().send(_server.json(new ServerMessage("game has ended")).get());
-		_player2.getClient().send(_server.json(new ServerMessage("game has ended")).get());
-		_player1.getClient().getPlayer().setArena(null);
-		_player2.getClient().getPlayer().setArena(null);
+		List<T> ps = getPlayers();
+		ps.forEach(p -> p.getClient().getPlayer().addPoints(p.getTotalPoints()));
+		ps.forEach(p -> p.getClient().getPlayer().setBusy(false));
+		ps.forEach(p -> p.getClient().getPlayer().getListeners().unregisterListener(this));
+		ps.forEach(p -> p.getClient().send(_server.json(Const.PAR_MESSAGE, new ServerMessage("game has ended")).get()));
+		ps.forEach(p -> p.getClient().getPlayer().setArena(null));
 		_player1 = null;
 		_player2 = null;
 	}
@@ -136,10 +144,9 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerL
 	public void run() {
 		_running = true;
 		if (prerequisites()) {
-			_player1.getClient().getPlayer().getListeners().registerListener(this);
-			_player2.getClient().getPlayer().getListeners().registerListener(this);
-			_player1.getClient().getPlayer().setBusy(true);
-			_player2.getClient().getPlayer().setBusy(true);
+			List<T> ps = getPlayers();
+			ps.forEach(p -> p.getClient().getPlayer().getListeners().registerListener(this));
+			ps.forEach(p -> p.getClient().getPlayer().setBusy(true));
 			while (isRunning()) {
 				try {
 					Thread.sleep(getDelay());
@@ -158,12 +165,12 @@ public abstract class Arena<T extends Opponent<?>> implements Runnable, IPlayerL
 	 * Sends the result of one round to both players (see {@link #tokenize()}).
 	 */
 	protected void sendResult() {
-		_player1.getClient().send(_server.json(this).get());
-		_player2.getClient().send(_server.json(this).get());
-		_player1.getClient().send(_server.json(new ServerMessage(String
-				.format("At the end of round %d you have a total of %d points", _curRound, _player1.getTotalPoints()))).get());
-		_player2.getClient().send(_server.json(new ServerMessage(String
-				.format("At the end of round %d you have a total of %d points", _curRound, _player2.getTotalPoints()))).get());
+		_player1.getClient().send(_server.json(Const.PAR_RESULT, this).get());
+		_player2.getClient().send(_server.json(Const.PAR_RESULT, this).get());
+		_player1.getClient().send(_server.json(Const.PAR_MESSAGE,
+				new ServerMessage( String.format("At the end of round %d you have a total of %d points", _curRound, _player1.getTotalPoints()))).get());
+		_player2.getClient().send(_server.json(Const.PAR_MESSAGE,
+				new ServerMessage(String.format("At the end of round %d you have a total of %d points", _curRound, _player2.getTotalPoints()))).get());
 	}
 
 	/**

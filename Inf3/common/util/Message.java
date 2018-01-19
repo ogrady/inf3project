@@ -10,8 +10,7 @@ import tokenizer.MessageTokenizer;
  * 
  * @author Daniel
  */
-public class Message implements ITokenizable {
-	private static final MessageTokenizer tokenizer = new MessageTokenizer();
+public class Message {
 	private final int senderid;
 	private final String sender;
 	private final String text;
@@ -47,10 +46,5 @@ public class Message implements ITokenizable {
 	@Override
 	public String toString() {
 		return String.format("%1$s: %2$s", sender, text);
-	}
-
-	@Override
-	public List<String> tokenize() {
-		return tokenizer.tokenize(this);
 	}
 }

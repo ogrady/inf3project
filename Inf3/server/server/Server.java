@@ -274,7 +274,7 @@ public class Server implements IListenable<IServerListener>, IMapListener, IDrag
 			_running = false;
 			_clock._running = false;
 			_consoleInput._running = false;
-			broadcast(new ServerMessage("shutting down server"));
+			broadcast(new ServerMessage("shutting down server"), Const.PAR_MESSAGE);
 			for (final TcpClient cl : _clients) {
 				cl.close();
 			}

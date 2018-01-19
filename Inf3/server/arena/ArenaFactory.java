@@ -99,23 +99,16 @@ abstract public class ArenaFactory {
 			} else {
 				Arena<?> arena = opponent.getPlayer().getArena();
 				// opponent already has an arena and is waiting for us -> just enter the already
-				// existing arena
+				// existing arena. Also send a challenge to both players to show the challenger
+				// which challenge has been accepted
 				if (arena != null && matchingArenaType(arena) && arena.getChallenged().getClient().equals(src)) {
 					src.getPlayer().setArena(arena);
-					// _src.flushTokenizable(new ServerMessage(String.format("you have accepted the
-					// challenge from
-					// %s",opponent.getPlayer().getWrappedObject().getDescription())));
-					// opponent.flushTokenizable(new ServerMessage(String.format("%s has accepted
-					// your challenge",_src.getPlayer().getWrappedObject().getDescription())));
 					opponent.send(server.json(Const.PAR_CHALLENGE, generateChallenge(src.getPlayer().getWrappedObject().getId(), true)).get());
+					src.send(server.json(Const.PAR_CHALLENGE, generateChallenge(opponent.getPlayer().getWrappedObject().getId(), true)).get());
 					arena.enter(src);
 					// create a new arena and invite the opponent to it
 				} else {
 					src.getPlayer().setArena(createArena(src, opponent));
-					// _src.flushTokenizable(new ServerMessage(String.format("you have challenged
-					// %s",opponent.getPlayer().getWrappedObject().getDescription())));
-					// opponent.flushTokenizable(new ServerMessage(String.format("%s challenged
-					// you",_src.getPlayer().getWrappedObject().getDescription())));
 					opponent.send(server.json(Const.PAR_CHALLENGE, generateChallenge(src.getPlayer().getWrappedObject().getId(), false)).get());
 				}
 				src.sendOk();
