@@ -19,7 +19,6 @@ public class GetMapCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
-		// _src.flushTokenizable(server.getMap());
 		final HashMap<String, Map> response = new HashMap<>();
 		response.put(Const.PAR_MAP, _server.getMap().getWrappedObject());
 		final Optional<String> json = _server.json(response);

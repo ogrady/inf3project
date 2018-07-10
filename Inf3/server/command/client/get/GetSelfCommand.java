@@ -1,9 +1,11 @@
 package command.client.get;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import command.ClientCommand;
 import command.Command;
+import environment.entity.Player;
 import server.Server;
 import server.TcpClient;
 import util.ServerConst;
@@ -16,7 +18,9 @@ public class GetSelfCommand extends ClientCommand {
 
 	@Override
 	protected int routine(TcpClient src, String cmd, StringBuilder mes) {
-		final Optional<String> json = _server.json(src.getPlayer().getWrappedObject());
+		final HashMap<String, Player> response = new HashMap<>();
+		response.put(ServerConst.ANS_ME, src.getPlayer().getWrappedObject());
+		final Optional<String> json = _server.json(response);
 		if (json.isPresent()) {
 			src.send(json.get());
 			return Command.PROCESSED;
