@@ -17,6 +17,7 @@ import output.Logger;
 import output.Logger.MessageType;
 import tokenizer.ITokenizable;
 import util.Answer;
+import util.Const;
 import util.ServerConst;
 
 /**
@@ -113,6 +114,15 @@ public class TcpClient implements Runnable {
 			close();
 		}
 	}
+	
+	private synchronized HashMap<String, HashMap<String, String>> createAnswer(String message, int code) {
+		HashMap<String, HashMap<String,String>> response = new HashMap<>();
+		HashMap<String,String> inner = new HashMap<>();
+		inner.put(ServerConst.ANS_MES, message);
+		inner.put(ServerConst.ANS_CODE, ""+code);
+		response.put(ServerConst.ANS, inner);
+		return response;		
+	}
 
 	/**
 	 * Convenience method to send OK for the last request
@@ -120,21 +130,16 @@ public class TcpClient implements Runnable {
 	public synchronized void sendOk() {
 		final Map<String, Answer> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, Answer.OK);
-		send(_server.json(mes).get());
+		send(_server.json(createAnswer(ServerConst.ANS_YES, ServerConst.CODE_ANS_YES)).get());
 	}
 
 	/**
 	 * Convenience method to send NO for the last request
 	 */
 	public synchronized void sendNo() {
-		final Map<String, Answer> mes = new HashMap<>();
-		mes.put(ServerConst.ANS, Answer.NO);
-		send(_server.json(mes).get());
-		/*
-		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_NO); endMessage();
-		 */
+		send(_server.json(createAnswer(ServerConst.ANS_NO, ServerConst.CODE_ANS_NO)).get());
 	}
-
+	
 	/**
 	 * Convenience method to UNKNOWN for the last request. Sends the request back to
 	 * the client and marks it as "unknown" to signalize malformed requests
@@ -143,13 +148,7 @@ public class TcpClient implements Runnable {
 	 *            original request
 	 */
 	public synchronized void sendUnknown(final String req) {
-		final Map<String, Answer> mes = new HashMap<>();
-		mes.put(ServerConst.ANS, Answer.UNK);
-		send(_server.json(mes).get());
-		/*
-		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_UNKNOWN + _req);
-		 * endMessage();
-		 */
+		send(_server.json(createAnswer(ServerConst.ANS_UNKNOWN, ServerConst.CODE_ANS_UNKNOWN)).get());
 	}
 
 	/**
@@ -158,13 +157,9 @@ public class TcpClient implements Runnable {
 	public synchronized void sendInvalid() {
 		final Map<String, String> mes = new HashMap<>();
 		mes.put(ServerConst.ANS, ServerConst.ANS_INVALID);
-		send(_server.json(mes).get());
-		/*
-		 * beginMessage(); send(ServerConst.ANS + ServerConst.ANS_INVALID);
-		 * endMessage();
-		 */
+		send(_server.json(createAnswer(ServerConst.ANS_INVALID, ServerConst.CODE_ANS_INVALID)).get());
 	}
-
+	
 	/**
 	 * Send a line of text directly to the Client (unbuffered)
 	 *
@@ -176,53 +171,6 @@ public class TcpClient implements Runnable {
 			_output.write(mes + "\r\n");
 			_output.flush();
 		}
-	}
-
-	/**
-	 * Sends an {@link ITokenizable} by sending its tokenized version line by line
-	 *
-	 * @param tok
-	 *            {@link ITokenizable} to send
-	 */
-	public synchronized void sendTokenizable(final ITokenizable tok) {
-		for (final String t : tok.tokenize()) {
-			send(t);
-		}
-	}
-
-	/**
-	 * Starts the next message. Makes the {@link TcpClient} send the next available
-	 * id and remember that id. Each message should then be ended with a call of
-	 * {@link #endMessage()}
-	 */
-	public synchronized void beginMessage() {
-		if (_mesId == -1) {
-			_mesId = _nextId++;
-			send(ServerConst.BEGIN + _mesId);
-		}
-	}
-
-	/**
-	 * Ends the message by sending the closing tag with the id of the current
-	 * request, as determined by {@link #beginMessage()}. Invalidates the id by
-	 * setting it to -1 (= no message pending)
-	 */
-	public synchronized void endMessage() {
-		send(ServerConst.END + this._mesId);
-		_mesId = -1;
-	}
-
-	/**
-	 * Directly sends a {@link ITokenizable} with enclosing begin and end
-	 *
-	 * @param _tok
-	 *            {@link ITokenizable} to send
-	 */
-	@Deprecated
-	public synchronized void flushTokenizable(final ITokenizable _tok) {
-		beginMessage();
-		sendTokenizable(_tok);
-		endMessage();
 	}
 
 	/**

@@ -361,9 +361,6 @@ public class Server implements IListenable<IServerListener>, IMapListener, IDrag
 		} else if (-1 == result) {
 			_src.sendInvalid();
 		}
-		if (_src.pendingMessage()) {
-			_src.endMessage();
-		}
 		final String messtr = mes.toString().trim();
 		if (!messtr.equals("")) {
 			_logger.println(mes.toString(), MessageType.OUTPUT);

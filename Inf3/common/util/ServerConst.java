@@ -29,8 +29,13 @@ public class ServerConst {
 			// prefixes to mark the begin/end of multiline answers
 			BEGIN = "begin:", END = "end:",
 			// answer to a former ASK request
-			ANS = "ans", UPD = "upd", DEL = "del", ANS_YES = "ok", ANS_NO = "no", ANS_INVALID = "invalid",
+			ANS = "ans", ANS_MES = "mes", ANS_CODE = "code", UPD = "upd", DEL = "del", ANS_YES = "ok", ANS_NO = "no", ANS_INVALID = "invalid",
 			ANS_COUNT = GET_COUNT, ANS_TIME = GET_TIME, ANS_MAP = GET_MAP, ANS_USERS = GET_USERS, ANS_ENTITIES = "ents",
 			ANS_UNKNOWN = "unknown:", ANS_MY_ID = "yourid";
-
+	
+	public static final Integer
+		CODE_ANS_YES = 0,
+		CODE_ANS_NO = 1,
+		CODE_ANS_INVALID = 2,
+		CODE_ANS_UNKNOWN = 3;
 }
