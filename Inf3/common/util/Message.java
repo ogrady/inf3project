@@ -1,10 +1,5 @@
 package util;
 
-import java.util.List;
-
-import tokenizer.ITokenizable;
-import tokenizer.MessageTokenizer;
-
 /**
  * A textmessage send over the server
  * 

@@ -11,7 +11,6 @@ import listener.IListenable;
 import listener.IServerListener;
 import listener.ListenerSet;
 import server.Server;
-import tokenizer.DragonTokenizer;
 import util.Configuration;
 import util.Dice;
 import util.SyncedMap;
@@ -55,7 +54,6 @@ public class ServerDragon extends ServerEntity<Dragon> implements IListenable<ID
 	 */
 	public ServerDragon(Dragon wrappedObject, Server server, boolean storeInDb) {
 		super(wrappedObject, server, storeInDb);
-		tokenizer = new DragonTokenizer();
 		_listeners = new ListenerSet<>();
 		instances.put(wrappedObject.getId(), this);
 		server.getListeners().add(this);

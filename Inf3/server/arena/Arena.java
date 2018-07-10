@@ -1,15 +1,9 @@
 package arena;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import arena.dragonfight.DragonArena;
 import arena.dragonfight.DragonOpponent;
 import environment.wrapper.ServerPlayer;

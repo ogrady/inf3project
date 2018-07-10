@@ -1,8 +1,6 @@
 package environment.wrapper;
 
 import java.io.File;
-import java.util.List;
-
 import environment.Map;
 import environment.MapCell;
 import environment.Property;
@@ -13,8 +11,6 @@ import listener.IMapListener;
 import listener.IServerListener;
 import listener.ListenerSet;
 import server.Server;
-import tokenizer.ITokenizable;
-import tokenizer.MapTokenizer;
 import util.Configuration;
 import util.Dice;
 
@@ -25,10 +21,9 @@ import util.Dice;
  * 
  * @author Daniel
  */
-public class ServerMap extends ServerWrapper<Map> implements IServerListener, IListenable<IMapListener>, ITokenizable {
+public class ServerMap extends ServerWrapper<Map> implements IServerListener, IListenable<IMapListener> {
 	private long _tickAccu;
 	@Deprecated
-	private final MapTokenizer _tokenizer;
 	private final ListenerSet<IMapListener> _listeners = new ListenerSet<>();
 	private final String _mapFile;
 
@@ -52,7 +47,6 @@ public class ServerMap extends ServerWrapper<Map> implements IServerListener, IL
 	 */
 	public ServerMap(final File mapFile, final Server server) throws MapException {
 		super(new Map(mapFile), server);
-		_tokenizer = new MapTokenizer();
 		_mapFile = mapFile.getAbsolutePath();
 	}
 
@@ -129,11 +123,6 @@ public class ServerMap extends ServerWrapper<Map> implements IServerListener, IL
 	@Override
 	public ListenerSet<IMapListener> getListeners() {
 		return _listeners;
-	}
-
-	@Override
-	public List<String> tokenize() {
-		return _tokenizer.tokenize(_wrapped);
 	}
 
 	@Override

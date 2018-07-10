@@ -1,19 +1,14 @@
 package environment.wrapper;
 
-import java.util.List;
-
 import environment.entity.Entity;
 import environment.entity.Player;
 import server.Server;
-import tokenizer.ITokenizable;
-import tokenizer.Tokenizer;
 import util.ServerConst;
 import util.SyncedMap;
 
-abstract public class ServerEntity<E extends Entity> extends ServerWrapper<E> implements ITokenizable {
+abstract public class ServerEntity<E extends Entity> extends ServerWrapper<E> {
 	// db here
 	public static SyncedMap<ServerEntity<?>> instances = new SyncedMap<>();
-	protected Tokenizer<E> tokenizer;
 	public boolean destructed;
 
 	public ServerEntity(E wrappedObject, Server server, boolean store) {
@@ -56,10 +51,5 @@ abstract public class ServerEntity<E extends Entity> extends ServerWrapper<E> im
 	 * and causes an error.
 	 */
 	protected void preDBHook() {
-	}
-
-	@Override
-	public List<String> tokenize() {
-		return tokenizer.tokenize(_wrapped);
 	}
 }

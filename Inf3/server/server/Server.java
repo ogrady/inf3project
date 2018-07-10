@@ -57,7 +57,6 @@ import listener.ListenerSet;
 import output.Logger;
 import output.Logger.MessageType;
 import output.TimeLogger;
-import tokenizer.ITokenizable;
 import util.Configuration;
 import util.Const;
 import util.ServerConst;
@@ -368,59 +367,16 @@ public class Server implements IListenable<IServerListener>, IMapListener, IDrag
 	}
 
 	/**
-	 * Broadcasts a {@link ITokenizable} object to all players Broadcasting is
-	 * synchronized as many {@link TcpClient}s (which are one thread each) could
-	 * issue a broadcast which would lead to mingled messages
-	 *
-	 * @param _tok
-	 *            {@link ITokenizable} object
-	 */
-	public synchronized void broadcast(final ITokenizable _tok) {
-		TcpClient client;
-		final Iterator<TcpClient> it = this._clients.iterator();
-		String json;
-		try {
-			json = getObjectMapper().writeValueAsString(_tok);
-			while (it.hasNext()) {
-				client = it.next();
-				if (!client.isClosed()) {
-					// client.flushTokenizable(_tok);
-					client.send(json);
-				}
-			}
-		} catch (final JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Broadcasts a {@link ITokenizable} object to all players with a surrounding
+	 * Broadcasts an object to all players with a surrounding
 	 * tag
 	 *
 	 * @param _tok
-	 *            {@link ITokenizable} object
+	 *            object
 	 * @param type
 	 *            surrounding tag if any. This allows us to send typed messages,
 	 *            such as updates
 	 * @throws Exception
 	 */
-
-	/*
-	 * @Deprecated public synchronized void broadcast(final ITokenizable _tok, final
-	 * String _type) throws Exception { if (true) { throw new
-	 * Exception("Don't use this method"); } /* TcpClient client; final
-	 * Iterator<TcpClient> it = clients.iterator(); while (it.hasNext()) { client =
-	 * it.next(); if (!client.isClosed()) { client.beginMessage();
-	 * client.send(ServerConst.BEGIN + _type); client.sendTokenizable(_tok);
-	 * client.send(ServerConst.END + _type); client.endMessage();
-	 * 
-	 * }
-	 * 
-	 * }
-	 */
-
-	// FIXME: replace above version with this one
 	public synchronized void broadcast(Object o, final String type) {
 		TcpClient client;
 		final Iterator<TcpClient> it = _clients.iterator();

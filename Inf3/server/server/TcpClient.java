@@ -15,9 +15,7 @@ import environment.entity.Player;
 import environment.wrapper.ServerPlayer;
 import output.Logger;
 import output.Logger.MessageType;
-import tokenizer.ITokenizable;
 import util.Answer;
-import util.Const;
 import util.ServerConst;
 
 /**
@@ -38,8 +36,6 @@ public class TcpClient implements Runnable {
 	private final PrintWriter _output;
 	private final BufferedReader _input;
 	private final ServerPlayer _player;
-	private volatile int _nextId;
-	private volatile int _mesId;
 	private volatile boolean _closed;
 
 	/**
@@ -50,16 +46,6 @@ public class TcpClient implements Runnable {
 	 */
 	public boolean isClosed() {
 		return _closed;
-	}
-
-	/**
-	 * Checks whether the {@link TcpClient} is still waiting for the end of a
-	 * message
-	 *
-	 * @return true, if the mes-id <> -1
-	 */
-	public boolean pendingMessage() {
-		return _mesId >= 0;
 	}
 
 	/**
@@ -94,7 +80,6 @@ public class TcpClient implements Runnable {
 		_input = new BufferedReader(new InputStreamReader(new DataInputStream(_socket.getInputStream())));
 		final MapCell randomCell = _server.getMap().getWrappedObject().getRandomWalkableCell();
 		_player = new ServerPlayer(new Player(randomCell.getX(), randomCell.getY(), ""), _server);
-		_mesId = -1;
 		_server.addClient(this);
 		_server.ready(this);
 	}

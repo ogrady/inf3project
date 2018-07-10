@@ -9,7 +9,6 @@ import listener.IPlayerListener;
 import listener.IServerListener;
 import listener.ListenerSet;
 import server.Server;
-import tokenizer.PlayerTokenizer;
 import util.ServerConst;
 import util.SyncedMap;
 
@@ -79,7 +78,6 @@ public class ServerPlayer extends ServerEntity<Player> implements IListenable<IP
 	 */
 	public ServerPlayer(Player wrappedObject, Server server, boolean store) {
 		super(wrappedObject, server, store);
-		tokenizer = new PlayerTokenizer();
 		server.getListeners().add(this);
 		if (store) {
 			instances.put(wrappedObject.getId(), this);
